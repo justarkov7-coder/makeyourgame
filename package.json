@@ -1,0 +1,13 @@
+{
+  "name": "makeyourgame",
+  "version": "1.0.0",
+  "description": "Space Invaders en HTML/CSS/JS pur avec rendu DOM et requestAnimationFrame.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "check": "node --check index.js"
+  },
+  "private": true
+}
