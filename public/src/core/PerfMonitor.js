@@ -1,35 +1,43 @@
-export class PerfMonitor {
+export class MoniteurPerformance {
   constructor() {
     this.fps = 60;
-    this.slowestFrameMs = 0;
-    this.slowFrames = 0;
-    this.frameCounter = 0;
-    this.accumulator = 0;
+    this.imagesLentes = 0;
+    this.imageLaPlusLenteMs = 0;
+    this.compteurImages = 0;
+    this.tempsCumuleMs = 0;
   }
 
-  track(deltaSeconds) {
-    const frameMs = deltaSeconds * 1000;
-    this.frameCounter += 1;
-    this.accumulator += frameMs;
-    this.slowestFrameMs = Math.max(this.slowestFrameMs, frameMs);
+  mesurer(deltaSecondes) {
+    const dureeImageMs = deltaSecondes * 1000;
+    this.mettreAJourStatistiques(dureeImageMs);
 
-    if (frameMs > 20) {
-      this.slowFrames += 1;
-    }
-
-    if (this.accumulator >= 250) {
-      this.fps = Math.round((this.frameCounter * 1000) / this.accumulator);
-      this.frameCounter = 0;
-      this.accumulator = 0;
-      this.slowestFrameMs = frameMs;
+    if (this.tempsCumuleMs >= 250) {
+      this.fps = Math.round((this.compteurImages * 1000) / this.tempsCumuleMs);
+      this.reinitialiserFenetreMesure(dureeImageMs);
     }
   }
 
-  snapshot() {
+  instantane() {
     return {
       fps: this.fps,
-      slowFrames: this.slowFrames,
-      slowestFrameMs: Math.round(this.slowestFrameMs * 10) / 10,
+      imagesLentes: this.imagesLentes,
+      imageLaPlusLenteMs: Math.round(this.imageLaPlusLenteMs * 10) / 10,
     };
+  }
+
+  mettreAJourStatistiques(dureeImageMs) {
+    this.compteurImages += 1;
+    this.tempsCumuleMs += dureeImageMs;
+    this.imageLaPlusLenteMs = Math.max(this.imageLaPlusLenteMs, dureeImageMs);
+
+    if (dureeImageMs > 20) {
+      this.imagesLentes += 1;
+    }
+  }
+
+  reinitialiserFenetreMesure(dureeImageMs) {
+    this.compteurImages = 0;
+    this.tempsCumuleMs = 0;
+    this.imageLaPlusLenteMs = dureeImageMs;
   }
 }

@@ -1,84 +1,99 @@
-function setBox(element, entity) {
-  element.style.width = `${entity.width}px`;
-  element.style.height = `${entity.height}px`;
-  element.style.transform = `translate3d(${Math.round(entity.x)}px, ${Math.round(entity.y)}px, 0)`;
+function appliquerBoite(element, entite) {
+  element.style.width = `${entite.largeur}px`;
+  element.style.height = `${entite.hauteur}px`;
+  element.style.transform = `translate3d(${Math.round(entite.x)}px, ${Math.round(entite.y)}px, 0)`;
 }
 
-export class DomRenderer {
-  constructor({ scene, world, entityLayer }) {
+export class RenduDom {
+  constructor({ scene, monde, coucheEntites }) {
     this.scene = scene;
-    this.world = world;
-    this.entityLayer = entityLayer;
-    this.entityLayer.innerHTML = '';
-    this.playerElement = this.createPlayer();
-    this.entityLayer.append(this.playerElement);
-    this.alienElements = new Map();
-    this.bulletElements = new Map();
-    this.layoutWorld = this.layoutWorld.bind(this);
-    this.layoutWorld();
-    window.addEventListener('resize', this.layoutWorld);
+    this.monde = monde;
+    this.coucheEntites = coucheEntites;
+    this.elementsAliens = new Map();
+    this.elementsProjectiles = new Map();
+    this.elementJoueur = this.creerElementJoueur();
+    this.coucheEntites.innerHTML = '';
+    this.coucheEntites.append(this.elementJoueur);
+    this.mettreEnPageMonde = this.mettreEnPageMonde.bind(this);
+    this.mettreEnPageMonde();
+    window.addEventListener('resize', this.mettreEnPageMonde);
   }
 
-  layoutWorld() {
-    const rect = this.scene.getBoundingClientRect();
-    const scale = Math.min(rect.width / 960, rect.height / 640);
-    const offsetX = (rect.width - 960 * scale) / 2;
-    const offsetY = (rect.height - 640 * scale) / 2;
-    this.world.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  mettreEnPageMonde() {
+    const rectangle = this.scene.getBoundingClientRect();
+    const echelle = Math.min(rectangle.width / 960, rectangle.height / 640);
+    const decalageX = (rectangle.width - 960 * echelle) / 2;
+    const decalageY = (rectangle.height - 640 * echelle) / 2;
+    this.monde.style.transform = `translate(${decalageX}px, ${decalageY}px) scale(${echelle})`;
   }
 
-  createPlayer() {
+  creerElementJoueur() {
     const element = document.createElement('div');
     element.className = 'entity player';
     return element;
   }
 
-  createAlien(alien) {
+  creerElementAlien(alien) {
     const element = document.createElement('div');
     element.className = `entity alien ${alien.type}`;
-    this.entityLayer.append(element);
-    this.alienElements.set(alien.id, element);
+    this.coucheEntites.append(element);
+    this.elementsAliens.set(alien.id, element);
     return element;
   }
 
-  createBullet(bullet) {
+  creerElementProjectile(projectile) {
+    const typeProjectile = projectile.proprietaire === 'joueur' ? 'player-shot' : 'alien-shot';
     const element = document.createElement('div');
-    element.className = `entity bullet ${bullet.owner === 'player' ? 'player-shot' : 'alien-shot'}`;
-    this.entityLayer.append(element);
-    this.bulletElements.set(bullet.id, element);
+    element.className = `entity bullet ${typeProjectile}`;
+    this.coucheEntites.append(element);
+    this.elementsProjectiles.set(projectile.id, element);
     return element;
   }
 
-  render(state) {
-    setBox(this.playerElement, state.player);
-    this.playerElement.style.opacity = state.player.shieldSeconds > 0 ? '0.5' : '1';
+  rendre(etat) {
+    this.rendreJoueur(etat.joueur);
+    this.rendreAliens(etat.aliens);
+    this.rendreProjectiles(etat.projectiles);
+  }
 
-    const aliveAlienIds = new Set();
-    for (const alien of state.aliens) {
-      aliveAlienIds.add(alien.id);
-      const element = this.alienElements.get(alien.id) || this.createAlien(alien);
-      setBox(element, alien);
+  rendreJoueur(joueur) {
+    appliquerBoite(this.elementJoueur, joueur);
+    this.elementJoueur.style.opacity = joueur.bouclierSecondes > 0 ? '0.5' : '1';
+  }
+
+  rendreAliens(aliens) {
+    const idsAliensVivants = new Set();
+
+    for (const alien of aliens) {
+      idsAliensVivants.add(alien.id);
+      const element = this.elementsAliens.get(alien.id) || this.creerElementAlien(alien);
+      appliquerBoite(element, alien);
     }
 
-    for (const [alienId, element] of this.alienElements.entries()) {
-      if (!aliveAlienIds.has(alienId)) {
-        element.remove();
-        this.alienElements.delete(alienId);
+    this.supprimerElementsAbsents(this.elementsAliens, idsAliensVivants);
+  }
+
+  rendreProjectiles(projectiles) {
+    const idsProjectilesActifs = new Set();
+
+    for (const projectile of projectiles) {
+      idsProjectilesActifs.add(projectile.id);
+      const element =
+        this.elementsProjectiles.get(projectile.id) || this.creerElementProjectile(projectile);
+      appliquerBoite(element, projectile);
+    }
+
+    this.supprimerElementsAbsents(this.elementsProjectiles, idsProjectilesActifs);
+  }
+
+  supprimerElementsAbsents(collectionElements, idsActifs) {
+    for (const [id, element] of collectionElements.entries()) {
+      if (idsActifs.has(id)) {
+        continue;
       }
-    }
 
-    const activeBulletIds = new Set();
-    for (const bullet of state.bullets) {
-      activeBulletIds.add(bullet.id);
-      const element = this.bulletElements.get(bullet.id) || this.createBullet(bullet);
-      setBox(element, bullet);
-    }
-
-    for (const [bulletId, element] of this.bulletElements.entries()) {
-      if (!activeBulletIds.has(bulletId)) {
-        element.remove();
-        this.bulletElements.delete(bulletId);
-      }
+      element.remove();
+      collectionElements.delete(id);
     }
   }
 }

@@ -1,52 +1,60 @@
-import { GAME_CONFIG } from './config.js';
+import { CONFIG_JEU } from './config.js';
 
-function createAliens() {
+function creerAlien(index, ligne, colonne) {
+  return {
+    id: `alien-${index}`,
+    type: `tier-${Math.min(3, ligne + 1)}`,
+    ligne,
+    colonne,
+    largeur: CONFIG_JEU.aliens.largeur,
+    hauteur: CONFIG_JEU.aliens.hauteur,
+    x:
+      CONFIG_JEU.aliens.departX +
+      colonne * (CONFIG_JEU.aliens.largeur + CONFIG_JEU.aliens.ecartHorizontal),
+    y:
+      CONFIG_JEU.aliens.departY +
+      ligne * (CONFIG_JEU.aliens.hauteur + CONFIG_JEU.aliens.ecartVertical),
+    points: (CONFIG_JEU.aliens.lignes - ligne) * 10,
+  };
+}
+
+function creerAliens() {
   const aliens = [];
-  let id = 0;
+  let index = 0;
 
-  for (let row = 0; row < GAME_CONFIG.aliens.rows; row += 1) {
-    for (let column = 0; column < GAME_CONFIG.aliens.columns; column += 1) {
-      aliens.push({
-        id: `alien-${id}`,
-        type: `tier-${Math.min(3, row + 1)}`,
-        row,
-        column,
-        width: GAME_CONFIG.aliens.width,
-        height: GAME_CONFIG.aliens.height,
-        x:
-          GAME_CONFIG.aliens.startX +
-          column * (GAME_CONFIG.aliens.width + GAME_CONFIG.aliens.gapX),
-        y:
-          GAME_CONFIG.aliens.startY +
-          row * (GAME_CONFIG.aliens.height + GAME_CONFIG.aliens.gapY),
-        points: (GAME_CONFIG.aliens.rows - row) * 10,
-      });
-      id += 1;
+  for (let ligne = 0; ligne < CONFIG_JEU.aliens.lignes; ligne += 1) {
+    for (let colonne = 0; colonne < CONFIG_JEU.aliens.colonnes; colonne += 1) {
+      aliens.push(creerAlien(index, ligne, colonne));
+      index += 1;
     }
   }
 
   return aliens;
 }
 
-export function createInitialState() {
+function creerJoueurInitial() {
+  return {
+    x: CONFIG_JEU.largeur / 2 - CONFIG_JEU.joueur.largeur / 2,
+    y: CONFIG_JEU.hauteur - 76,
+    largeur: CONFIG_JEU.joueur.largeur,
+    hauteur: CONFIG_JEU.joueur.hauteur,
+    delaiTir: 0,
+    bouclierSecondes: 0,
+  };
+}
+
+export function creerEtatInitial() {
   return {
     phase: 'running',
     score: 0,
-    lives: GAME_CONFIG.initialLives,
-    timeLeftSeconds: GAME_CONFIG.roundDurationSeconds,
-    nextBulletId: 0,
-    alienDirection: 1,
-    alienSpeed: GAME_CONFIG.aliens.baseSpeed,
-    alienFireCooldown: 0.3,
-    player: {
-      x: GAME_CONFIG.width / 2 - GAME_CONFIG.player.width / 2,
-      y: GAME_CONFIG.height - 76,
-      width: GAME_CONFIG.player.width,
-      height: GAME_CONFIG.player.height,
-      shootCooldown: 0,
-      shieldSeconds: 0,
-    },
-    bullets: [],
-    aliens: createAliens(),
+    vies: CONFIG_JEU.viesInitiales,
+    tempsRestantSecondes: CONFIG_JEU.dureeMancheSecondes,
+    prochainIdProjectile: 0,
+    directionAliens: 1,
+    vitesseAliens: CONFIG_JEU.aliens.vitesseBase,
+    delaiTirAlien: 0.3,
+    joueur: creerJoueurInitial(),
+    projectiles: [],
+    aliens: creerAliens(),
   };
 }

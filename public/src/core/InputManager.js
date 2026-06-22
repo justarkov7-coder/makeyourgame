@@ -1,4 +1,4 @@
-const BLOCKED_KEYS = new Set([
+const TOUCHES_BLOQUEES = new Set([
   'ArrowLeft',
   'ArrowRight',
   'ArrowUp',
@@ -11,55 +11,61 @@ const BLOCKED_KEYS = new Set([
   'KeyR',
 ]);
 
-export class InputManager {
+export class GestionnaireEntrees {
   constructor() {
-    this.pressed = new Set();
-    this.pressHandlers = new Map();
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.touchesAppuyees = new Set();
+    this.gestionnairesAppui = new Map();
+    this.gererToucheEnfoncee = this.gererToucheEnfoncee.bind(this);
+    this.gererToucheRelachee = this.gererToucheRelachee.bind(this);
   }
 
-  attach() {
-    window.addEventListener('keydown', this.handleKeyDown);
-    window.addEventListener('keyup', this.handleKeyUp);
+  attacher() {
+    window.addEventListener('keydown', this.gererToucheEnfoncee);
+    window.addEventListener('keyup', this.gererToucheRelachee);
   }
 
-  detach() {
-    window.removeEventListener('keydown', this.handleKeyDown);
-    window.removeEventListener('keyup', this.handleKeyUp);
+  detacher() {
+    window.removeEventListener('keydown', this.gererToucheEnfoncee);
+    window.removeEventListener('keyup', this.gererToucheRelachee);
   }
 
-  onPress(code, handler) {
-    const handlers = this.pressHandlers.get(code) || [];
-    handlers.push(handler);
-    this.pressHandlers.set(code, handlers);
+  surAppui(code, gestionnaire) {
+    const gestionnaires = this.gestionnairesAppui.get(code) || [];
+    gestionnaires.push(gestionnaire);
+    this.gestionnairesAppui.set(code, gestionnaires);
   }
 
-  isDown(code) {
-    return this.pressed.has(code);
+  estEnfoncee(code) {
+    return this.touchesAppuyees.has(code);
   }
 
-  handleKeyDown(event) {
-    if (BLOCKED_KEYS.has(event.code)) {
-      event.preventDefault();
-    }
+  gererToucheEnfoncee(evenement) {
+    this.bloquerToucheNavigateur(evenement);
 
-    const wasPressed = this.pressed.has(event.code);
-    this.pressed.add(event.code);
+    const etaitDejaEnfoncee = this.touchesAppuyees.has(evenement.code);
+    this.touchesAppuyees.add(evenement.code);
 
-    if (!wasPressed) {
-      const handlers = this.pressHandlers.get(event.code) || [];
-      for (const handler of handlers) {
-        handler();
-      }
+    if (!etaitDejaEnfoncee) {
+      this.executerGestionnairesAppui(evenement.code);
     }
   }
 
-  handleKeyUp(event) {
-    if (BLOCKED_KEYS.has(event.code)) {
-      event.preventDefault();
-    }
+  gererToucheRelachee(evenement) {
+    this.bloquerToucheNavigateur(evenement);
+    this.touchesAppuyees.delete(evenement.code);
+  }
 
-    this.pressed.delete(event.code);
+  bloquerToucheNavigateur(evenement) {
+    if (TOUCHES_BLOQUEES.has(evenement.code)) {
+      evenement.preventDefault();
+    }
+  }
+
+  executerGestionnairesAppui(code) {
+    const gestionnaires = this.gestionnairesAppui.get(code) || [];
+
+    for (const gestionnaire of gestionnaires) {
+      gestionnaire();
+    }
   }
 }
