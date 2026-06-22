@@ -1,3 +1,5 @@
+import { RenduCarte } from './RenduCarte.js';
+
 function appliquerBoite(element, entite) {
   element.style.width = `${entite.largeur}px`;
   element.style.height = `${entite.hauteur}px`;
@@ -5,9 +7,10 @@ function appliquerBoite(element, entite) {
 }
 
 export class RenduDom {
-  constructor({ scene, monde, coucheEntites }) {
+  constructor({ scene, monde, coucheCarte, coucheEntites }) {
     this.scene = scene;
     this.monde = monde;
+    this.renduCarte = new RenduCarte({ coucheCarte });
     this.coucheEntites = coucheEntites;
     this.elementsAliens = new Map();
     this.elementsProjectiles = new Map();
@@ -51,6 +54,7 @@ export class RenduDom {
   }
 
   rendre(etat) {
+    this.renduCarte.rendre(etat.carte);
     this.rendreJoueur(etat.joueur);
     this.rendreAliens(etat.aliens);
     this.rendreProjectiles(etat.projectiles);

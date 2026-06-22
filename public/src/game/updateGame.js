@@ -1,4 +1,5 @@
 import { CONFIG_JEU } from './config.js';
+import { formaterTemps } from '../utils/temps.js';
 
 function borner(valeur, minimum, maximum) {
   return Math.max(minimum, Math.min(maximum, valeur));
@@ -11,6 +12,11 @@ function collisionne(entiteA, entiteB) {
     entiteA.y < entiteB.y + entiteB.hauteur &&
     entiteA.y + entiteA.hauteur > entiteB.y
   );
+}
+
+function terminerPartie(etat, resultat) {
+  etat.resultat = resultat;
+  etat.phase = 'saisie-score';
 }
 
 function creerProjectile(etat, proprietaire, x, y, vitesseVerticale) {
@@ -116,13 +122,11 @@ function choisirTireurAlien(aliens) {
     return null;
   }
 
-  const indexAleatoire = Math.floor(Math.random() * tireursPossibles.length);
-  return tireursPossibles[indexAleatoire];
+  return tireursPossibles[Math.floor(Math.random() * tireursPossibles.length)];
 }
 
 function faireTirerAlien(etat) {
   const tireur = choisirTireurAlien(etat.aliens);
-
   if (!tireur) {
     return;
   }
@@ -149,19 +153,19 @@ function mettreAJourTirAlien(etat, deltaSecondes) {
 
 function verifierDefaiteParDescente(etat, bords) {
   if (bords.maximumY >= etat.joueur.y) {
-    etat.phase = 'game-over';
+    terminerPartie(etat, 'defeat');
   }
 }
 
 function mettreAJourAliens(etat, deltaSecondes) {
   if (etat.aliens.length === 0) {
-    etat.phase = 'victory';
+    terminerPartie(etat, 'victory');
     return;
   }
 
   deplacerAliensHorizontalement(etat, deltaSecondes);
-
   const bords = calculerBordsAliens(etat.aliens);
+
   if (doitInverserFlotte(bords)) {
     faireDescendreFlotte(etat);
   }
@@ -191,7 +195,7 @@ function infligerDegatAuJoueur(etat) {
   etat.joueur.bouclierSecondes = CONFIG_JEU.joueur.dureeBouclierReapparition;
 
   if (etat.vies <= 0) {
-    etat.phase = 'game-over';
+    terminerPartie(etat, 'defeat');
   }
 }
 
@@ -263,10 +267,23 @@ function resoudreCollisions(etat) {
 
 function mettreAJourChronometre(etat, deltaSecondes) {
   etat.tempsRestantSecondes = Math.max(0, etat.tempsRestantSecondes - deltaSecondes);
+  etat.tempsEcouleSecondes += deltaSecondes;
+  etat.tempsRestantFormate = formaterTemps(etat.tempsRestantSecondes);
 
   if (etat.tempsRestantSecondes === 0) {
-    etat.phase = 'game-over';
+    terminerPartie(etat, 'defeat');
   }
+}
+
+function declencherPalierHistoire(etat) {
+  const scorePalier = CONFIG_JEU.histoire.scorePalier;
+
+  if (etat.histoire.palierDeclenche || etat.score < scorePalier) {
+    return;
+  }
+
+  etat.histoire.palierDeclenche = true;
+  etat.phase = 'checkpoint';
 }
 
 export function mettreAJourJeu(etat, entrees, deltaSecondes) {
@@ -279,7 +296,6 @@ export function mettreAJourJeu(etat, entrees, deltaSecondes) {
     return;
   }
 
-  // On separe deplacement et tir pour garder une logique facile a lire.
   deplacerJoueur(etat, entrees, deltaSecondes);
   mettreAJourTirJoueur(etat, entrees, deltaSecondes);
   mettreAJourAliens(etat, deltaSecondes);
@@ -291,7 +307,14 @@ export function mettreAJourJeu(etat, entrees, deltaSecondes) {
   deplacerProjectiles(etat, deltaSecondes);
   resoudreCollisions(etat);
 
-  if (etat.phase === 'running' && etat.aliens.length === 0) {
-    etat.phase = 'victory';
+  if (etat.phase !== 'running') {
+    return;
   }
+
+  if (etat.aliens.length === 0) {
+    terminerPartie(etat, 'victory');
+    return;
+  }
+
+  declencherPalierHistoire(etat);
 }

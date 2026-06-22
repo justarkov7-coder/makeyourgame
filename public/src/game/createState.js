@@ -1,4 +1,6 @@
 import { CONFIG_JEU } from './config.js';
+import { recupererCarte } from './cartes.js';
+import { formaterTemps } from '../utils/temps.js';
 
 function creerAlien(index, ligne, colonne) {
   return {
@@ -43,12 +45,35 @@ function creerJoueurInitial() {
   };
 }
 
-export function creerEtatInitial() {
+function creerClassementInitial() {
   return {
-    phase: 'running',
+    message: '',
+    erreur: '',
+    chargement: false,
+    page: 1,
+    totalPages: 1,
+    scores: [],
+    resumeSoumission: null,
+  };
+}
+
+function creerHistoireInitiale() {
+  return {
+    palierDeclenche: false,
+  };
+}
+
+export function creerEtatInitial(idCarte = CONFIG_JEU.cartes.idParDefaut) {
+  const tempsRestantSecondes = CONFIG_JEU.dureeMancheSecondes;
+
+  return {
+    phase: 'intro',
+    resultat: null,
     score: 0,
     vies: CONFIG_JEU.viesInitiales,
-    tempsRestantSecondes: CONFIG_JEU.dureeMancheSecondes,
+    tempsRestantSecondes,
+    tempsRestantFormate: formaterTemps(tempsRestantSecondes),
+    tempsEcouleSecondes: 0,
     prochainIdProjectile: 0,
     directionAliens: 1,
     vitesseAliens: CONFIG_JEU.aliens.vitesseBase,
@@ -56,5 +81,8 @@ export function creerEtatInitial() {
     joueur: creerJoueurInitial(),
     projectiles: [],
     aliens: creerAliens(),
+    carte: recupererCarte(idCarte),
+    histoire: creerHistoireInitiale(),
+    classement: creerClassementInitial(),
   };
 }
