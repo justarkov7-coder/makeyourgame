@@ -30,4 +30,13 @@ export const CONFIG_JEU = {
     largeur: 6,
     hauteur: 16,
   },
+  histoire: {
+    scorePalier: 120,
+  },
+  cartes: {
+    idParDefaut: 'hangar',
+  },
+  classement: {
+    pageSize: 5,
+  },
 };

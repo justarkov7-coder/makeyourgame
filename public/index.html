@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Space Invaders DOM</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -13,6 +14,7 @@
           <div class="brand">
             <p class="eyebrow">DOM Arcade</p>
             <h1>Space Invaders</h1>
+            <p class="brand-subtitle">Mode histoire, trois cartes et classement pilote.</p>
           </div>
           <div class="live-stats" aria-label="Statistiques du jeu">
             <div class="stat-card">
@@ -42,18 +44,23 @@
             aria-label="Zone de jeu"
           >
             <div id="game-world" class="game-world">
+              <div id="tile-layer" class="tile-layer"></div>
               <div class="stars"></div>
               <div id="entity-layer" class="entity-layer"></div>
             </div>
+
             <aside id="overlay" class="overlay" aria-live="polite">
               <div class="overlay-card">
-                <p class="overlay-tag">Pause Menu</p>
-                <h2 id="overlay-title">En pause</h2>
-                <p id="overlay-text" class="overlay-text">
-                  `Echap` ou `P` pour continuer, `R` pour recommencer.
-                </p>
+                <p id="overlay-tag" class="overlay-tag">Mode histoire</p>
+                <h2 id="overlay-title">Briefing orbital</h2>
+                <p id="overlay-text" class="overlay-text"></p>
 
-                <div class="overlay-scoreboard" aria-label="Scoreboard">
+                <section id="map-panel" class="map-panel" hidden>
+                  <p class="panel-title">Choisir une carte</p>
+                  <div id="map-options" class="map-options"></div>
+                </section>
+
+                <div id="resume-panel" class="overlay-scoreboard" aria-label="Resume de partie">
                   <div>
                     <span>Temps</span>
                     <strong id="menu-timer">02:00</strong>
@@ -72,9 +79,47 @@
                   </div>
                 </div>
 
+                <form id="score-form" class="score-form" hidden>
+                  <label class="panel-title" for="player-name">Nom du pilote</label>
+                  <div class="score-fields">
+                    <input
+                      id="player-name"
+                      name="player-name"
+                      type="text"
+                      maxlength="18"
+                      autocomplete="nickname"
+                      placeholder="Capitaine Nova"
+                      required
+                    />
+                    <button id="submit-score-button" type="submit">Envoyer</button>
+                  </div>
+                  <p id="score-form-message" class="score-form-message"></p>
+                </form>
+
+                <section id="ranking-panel" class="ranking-panel" hidden>
+                  <p id="ranking-feedback" class="ranking-feedback"></p>
+
+                  <div class="ranking-table" role="table" aria-label="Classement">
+                    <div class="ranking-row ranking-head" role="row">
+                      <span>Rang</span>
+                      <span>Nom</span>
+                      <span>Score</span>
+                      <span>Temps</span>
+                    </div>
+                    <div id="ranking-rows" class="ranking-body"></div>
+                  </div>
+
+                  <div class="ranking-pagination">
+                    <button id="page-prev" type="button">Page precedente</button>
+                    <strong id="page-indicator">Page 1/1</strong>
+                    <button id="page-next" type="button">Page suivante</button>
+                  </div>
+                </section>
+
                 <div class="overlay-actions">
-                  <button id="continue-button" type="button">Continuer</button>
-                  <button id="restart-button" type="button">Recommencer</button>
+                  <button id="start-button" type="button" hidden>Demarrer</button>
+                  <button id="continue-button" type="button" hidden>Continuer</button>
+                  <button id="restart-button" type="button" hidden>Recommencer</button>
                 </div>
               </div>
             </aside>
@@ -85,7 +130,7 @@
           <span>Deplacer: fleches ou A/D</span>
           <span>Tirer: espace</span>
           <span>Pause: Echap ou P</span>
-          <span>Restart: R</span>
+          <span>Relancer: R</span>
         </footer>
       </section>
     </main>
