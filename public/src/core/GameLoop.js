@@ -1,48 +1,54 @@
-export class GameLoop {
-  constructor({ onFrame }) {
-    this.onFrame = onFrame;
-    this.rafId = 0;
-    this.lastTimestamp = 0;
-    this.running = false;
-    this.tick = this.tick.bind(this);
+export class BoucleDeJeu {
+  constructor({ surImage }) {
+    this.surImage = surImage;
+    this.idAnimation = 0;
+    this.dernierHorodatage = 0;
+    this.estActive = false;
+    this.animer = this.animer.bind(this);
   }
 
-  start() {
-    if (this.running) {
+  demarrer() {
+    if (this.estActive) {
       return;
     }
 
-    this.running = true;
-    this.lastTimestamp = 0;
-    this.rafId = window.requestAnimationFrame(this.tick);
+    this.estActive = true;
+    this.dernierHorodatage = 0;
+    this.planifierImage();
   }
 
-  stop() {
-    this.running = false;
+  arreter() {
+    this.estActive = false;
 
-    if (this.rafId) {
-      window.cancelAnimationFrame(this.rafId);
-      this.rafId = 0;
-    }
-  }
-
-  tick(timestamp) {
-    if (!this.running) {
+    if (this.idAnimation === 0) {
       return;
     }
 
-    if (this.lastTimestamp === 0) {
-      this.lastTimestamp = timestamp;
+    window.cancelAnimationFrame(this.idAnimation);
+    this.idAnimation = 0;
+  }
+
+  animer(horodatage) {
+    if (!this.estActive) {
+      return;
     }
 
-    const deltaSeconds = Math.min((timestamp - this.lastTimestamp) / 1000, 0.05);
-    this.lastTimestamp = timestamp;
+    const deltaSecondes = this.calculerDelta(horodatage);
+    this.surImage({ horodatage, deltaSecondes });
+    this.planifierImage();
+  }
 
-    this.onFrame({
-      timestamp,
-      deltaSeconds,
-    });
+  calculerDelta(horodatage) {
+    if (this.dernierHorodatage === 0) {
+      this.dernierHorodatage = horodatage;
+    }
 
-    this.rafId = window.requestAnimationFrame(this.tick);
+    const deltaSecondes = Math.min((horodatage - this.dernierHorodatage) / 1000, 0.05);
+    this.dernierHorodatage = horodatage;
+    return deltaSecondes;
+  }
+
+  planifierImage() {
+    this.idAnimation = window.requestAnimationFrame(this.animer);
   }
 }

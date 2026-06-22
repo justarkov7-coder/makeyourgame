@@ -1,87 +1,117 @@
-import { GameLoop } from './core/GameLoop.js';
-import { InputManager } from './core/InputManager.js';
-import { PerfMonitor } from './core/PerfMonitor.js';
-import { createInitialState } from './game/createState.js';
-import { updateGame } from './game/updateGame.js';
-import { DomRenderer } from './render/DomRenderer.js';
-import { HudController } from './ui/HudController.js';
+import { BoucleDeJeu } from './core/GameLoop.js';
+import { GestionnaireEntrees } from './core/InputManager.js';
+import { MoniteurPerformance } from './core/PerfMonitor.js';
+import { creerEtatInitial } from './game/createState.js';
+import { mettreAJourJeu } from './game/updateGame.js';
+import { RenduDom } from './render/DomRenderer.js';
+import { ControleurHud } from './ui/HudController.js';
 
-const scene = document.getElementById('game-scene');
-const world = document.getElementById('game-world');
-const entityLayer = document.getElementById('entity-layer');
-const overlay = document.getElementById('overlay');
-const continueButton = document.getElementById('continue-button');
-const restartButton = document.getElementById('restart-button');
-
-const hud = new HudController({
-  hudTimer: document.getElementById('hud-timer'),
-  hudScore: document.getElementById('hud-score'),
-  hudLives: document.getElementById('hud-lives'),
-  hudFps: document.getElementById('hud-fps'),
-  menuTimer: document.getElementById('menu-timer'),
-  menuScore: document.getElementById('menu-score'),
-  menuLives: document.getElementById('menu-lives'),
-  menuFps: document.getElementById('menu-fps'),
-  overlay,
-  overlayTitle: document.getElementById('overlay-title'),
-  overlayText: document.getElementById('overlay-text'),
-  continueButton,
-});
-
-const renderer = new DomRenderer({
-  scene,
-  world,
-  entityLayer,
-});
-
-const input = new InputManager();
-const perf = new PerfMonitor();
-
-let state = createInitialState();
-
-function restartGame() {
-  state = createInitialState();
+function recupererElementsInterface() {
+  return {
+    scene: document.getElementById('game-scene'),
+    monde: document.getElementById('game-world'),
+    coucheEntites: document.getElementById('entity-layer'),
+    superposition: document.getElementById('overlay'),
+    boutonContinuer: document.getElementById('continue-button'),
+    boutonRecommencer: document.getElementById('restart-button'),
+    hudTimer: document.getElementById('hud-timer'),
+    hudScore: document.getElementById('hud-score'),
+    hudLives: document.getElementById('hud-lives'),
+    hudFps: document.getElementById('hud-fps'),
+    menuTemps: document.getElementById('menu-timer'),
+    menuScore: document.getElementById('menu-score'),
+    menuVies: document.getElementById('menu-lives'),
+    menuFps: document.getElementById('menu-fps'),
+    titreSuperposition: document.getElementById('overlay-title'),
+    texteSuperposition: document.getElementById('overlay-text'),
+  };
 }
 
-function togglePause() {
-  if (state.phase === 'running') {
-    state.phase = 'paused';
-    return;
-  }
+function creerDependances(elements) {
+  const rendu = new RenduDom({
+    scene: elements.scene,
+    monde: elements.monde,
+    coucheEntites: elements.coucheEntites,
+  });
 
-  if (state.phase === 'paused') {
-    state.phase = 'running';
-  }
+  const hud = new ControleurHud(elements);
+
+  return {
+    rendu,
+    hud,
+    entrees: new GestionnaireEntrees(),
+    performances: new MoniteurPerformance(),
+  };
 }
 
-input.onPress('Escape', togglePause);
-input.onPress('KeyP', togglePause);
-input.onPress('KeyR', restartGame);
-input.attach();
+function creerActionsJeu(etatRef) {
+  return {
+    redemarrer() {
+      etatRef.valeur = creerEtatInitial();
+    },
+    basculerPause() {
+      if (etatRef.valeur.phase === 'running') {
+        etatRef.valeur.phase = 'paused';
+        return;
+      }
 
-continueButton.addEventListener('click', () => {
-  if (state.phase === 'paused') {
-    state.phase = 'running';
-  }
-});
+      if (etatRef.valeur.phase === 'paused') {
+        etatRef.valeur.phase = 'running';
+      }
+    },
+    reprendre() {
+      if (etatRef.valeur.phase === 'paused') {
+        etatRef.valeur.phase = 'running';
+      }
+    },
+    mettreEnPauseSiActif() {
+      if (etatRef.valeur.phase === 'running') {
+        etatRef.valeur.phase = 'paused';
+      }
+    },
+  };
+}
 
-restartButton.addEventListener('click', restartGame);
+function brancherRaccourcisClavier(entrees, actions) {
+  entrees.surAppui('Escape', actions.basculerPause);
+  entrees.surAppui('KeyP', actions.basculerPause);
+  entrees.surAppui('KeyR', actions.redemarrer);
+  entrees.attacher();
+}
 
-const loop = new GameLoop({
-  onFrame({ deltaSeconds }) {
-    perf.track(deltaSeconds);
-    updateGame(state, input, deltaSeconds);
-    renderer.render(state);
-    hud.render(state, perf.snapshot());
-  },
-});
+function brancherBoutons(elements, actions) {
+  elements.boutonContinuer.addEventListener('click', actions.reprendre);
+  elements.boutonRecommencer.addEventListener('click', actions.redemarrer);
+}
 
-window.addEventListener('blur', () => {
-  if (state.phase === 'running') {
-    state.phase = 'paused';
-  }
-});
+function creerBoucle(etatRef, entrees, performances, rendu, hud) {
+  return new BoucleDeJeu({
+    surImage({ deltaSecondes }) {
+      performances.mesurer(deltaSecondes);
+      mettreAJourJeu(etatRef.valeur, entrees, deltaSecondes);
+      rendu.rendre(etatRef.valeur);
+      hud.rendre(etatRef.valeur, performances.instantane());
+    },
+  });
+}
 
-renderer.render(state);
-hud.render(state, perf.snapshot());
-loop.start();
+function initialiserJeu() {
+  const elements = recupererElementsInterface();
+  const { rendu, hud, entrees, performances } = creerDependances(elements);
+  const etatRef = { valeur: creerEtatInitial() };
+  const actions = creerActionsJeu(etatRef);
+
+  brancherRaccourcisClavier(entrees, actions);
+  brancherBoutons(elements, actions);
+  window.addEventListener('blur', actions.mettreEnPauseSiActif);
+
+  const boucle = creerBoucle(etatRef, entrees, performances, rendu, hud);
+  rendu.rendre(etatRef.valeur);
+  hud.rendre(etatRef.valeur, performances.instantane());
+  boucle.demarrer();
+}
+
+// Point d'entree unique: on centralise le branchement de l'UI ici.
+if (typeof document !== 'undefined') {
+  initialiserJeu();
+}

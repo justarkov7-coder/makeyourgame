@@ -1,220 +1,297 @@
-import { GAME_CONFIG } from './config.js';
+import { CONFIG_JEU } from './config.js';
 
-function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, value));
+function borner(valeur, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, valeur));
 }
 
-function isColliding(a, b) {
+function collisionne(entiteA, entiteB) {
   return (
-    a.x < b.x + b.width &&
-    a.x + a.width > b.x &&
-    a.y < b.y + b.height &&
-    a.y + a.height > b.y
+    entiteA.x < entiteB.x + entiteB.largeur &&
+    entiteA.x + entiteA.largeur > entiteB.x &&
+    entiteA.y < entiteB.y + entiteB.hauteur &&
+    entiteA.y + entiteA.hauteur > entiteB.y
   );
 }
 
-function spawnBullet(state, owner, x, y, velocityY) {
-  state.bullets.push({
-    id: `bullet-${state.nextBulletId}`,
-    owner,
+function creerProjectile(etat, proprietaire, x, y, vitesseVerticale) {
+  etat.projectiles.push({
+    id: `projectile-${etat.prochainIdProjectile}`,
+    proprietaire,
     x,
     y,
-    width: GAME_CONFIG.bullets.width,
-    height: GAME_CONFIG.bullets.height,
-    velocityY,
+    largeur: CONFIG_JEU.projectiles.largeur,
+    hauteur: CONFIG_JEU.projectiles.hauteur,
+    vitesseVerticale,
   });
-  state.nextBulletId += 1;
+  etat.prochainIdProjectile += 1;
 }
 
-function updatePlayer(state, input, deltaSeconds) {
-  const { player } = state;
-  const moveLeft = input.isDown('ArrowLeft') || input.isDown('KeyA');
-  const moveRight = input.isDown('ArrowRight') || input.isDown('KeyD');
-  const direction = Number(moveRight) - Number(moveLeft);
+function deplacerJoueur(etat, entrees, deltaSecondes) {
+  const joueur = etat.joueur;
+  const vaAGauche = entrees.estEnfoncee('ArrowLeft') || entrees.estEnfoncee('KeyA');
+  const vaADroite = entrees.estEnfoncee('ArrowRight') || entrees.estEnfoncee('KeyD');
+  const direction = Number(vaADroite) - Number(vaAGauche);
 
-  player.x = clamp(
-    player.x + direction * GAME_CONFIG.player.speed * deltaSeconds,
+  joueur.x = borner(
+    joueur.x + direction * CONFIG_JEU.joueur.vitesse * deltaSecondes,
     0,
-    GAME_CONFIG.width - player.width,
+    CONFIG_JEU.largeur - joueur.largeur,
   );
-
-  player.shootCooldown = Math.max(0, player.shootCooldown - deltaSeconds);
-  player.shieldSeconds = Math.max(0, player.shieldSeconds - deltaSeconds);
-
-  if (input.isDown('Space') && player.shootCooldown === 0) {
-    spawnBullet(
-      state,
-      'player',
-      player.x + player.width / 2 - GAME_CONFIG.bullets.width / 2,
-      player.y - GAME_CONFIG.bullets.height,
-      -GAME_CONFIG.bullets.playerSpeed,
-    );
-    player.shootCooldown = GAME_CONFIG.player.shootCooldown;
-  }
 }
 
-function getAlienBounds(aliens) {
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let maxY = -Infinity;
+function mettreAJourTirJoueur(etat, entrees, deltaSecondes) {
+  const joueur = etat.joueur;
+  joueur.delaiTir = Math.max(0, joueur.delaiTir - deltaSecondes);
+  joueur.bouclierSecondes = Math.max(0, joueur.bouclierSecondes - deltaSecondes);
+
+  if (!entrees.estEnfoncee('Space') || joueur.delaiTir !== 0) {
+    return;
+  }
+
+  creerProjectile(
+    etat,
+    'joueur',
+    joueur.x + joueur.largeur / 2 - CONFIG_JEU.projectiles.largeur / 2,
+    joueur.y - CONFIG_JEU.projectiles.hauteur,
+    -CONFIG_JEU.projectiles.vitesseJoueur,
+  );
+  joueur.delaiTir = CONFIG_JEU.joueur.delaiEntreTirs;
+}
+
+function calculerBordsAliens(aliens) {
+  let minimumX = Infinity;
+  let maximumX = -Infinity;
+  let maximumY = -Infinity;
 
   for (const alien of aliens) {
-    minX = Math.min(minX, alien.x);
-    maxX = Math.max(maxX, alien.x + alien.width);
-    maxY = Math.max(maxY, alien.y + alien.height);
+    minimumX = Math.min(minimumX, alien.x);
+    maximumX = Math.max(maximumX, alien.x + alien.largeur);
+    maximumY = Math.max(maximumY, alien.y + alien.hauteur);
   }
 
-  return {
-    minX,
-    maxX,
-    maxY,
-  };
+  return { minimumX, maximumX, maximumY };
 }
 
-function updateAliens(state, deltaSeconds) {
-  if (state.aliens.length === 0) {
-    state.phase = 'victory';
+function calculerVitesseHorizontaleAliens(etat) {
+  const totalAliens = CONFIG_JEU.aliens.lignes * CONFIG_JEU.aliens.colonnes;
+  const bonusVitesse =
+    (totalAliens - etat.aliens.length) * CONFIG_JEU.aliens.bonusVitesseParAlienDetruit;
+
+  return (etat.vitesseAliens + bonusVitesse) * etat.directionAliens;
+}
+
+function deplacerAliensHorizontalement(etat, deltaSecondes) {
+  const vitesseHorizontale = calculerVitesseHorizontaleAliens(etat);
+
+  for (const alien of etat.aliens) {
+    alien.x += vitesseHorizontale * deltaSecondes;
+  }
+}
+
+function doitInverserFlotte(bords) {
+  return bords.maximumX >= CONFIG_JEU.largeur - 12 || bords.minimumX <= 12;
+}
+
+function faireDescendreFlotte(etat) {
+  etat.directionAliens *= -1;
+
+  for (const alien of etat.aliens) {
+    alien.x = borner(alien.x, 12, CONFIG_JEU.largeur - alien.largeur - 12);
+    alien.y += CONFIG_JEU.aliens.descenteParRebond;
+  }
+}
+
+function choisirTireurAlien(aliens) {
+  const tireursParColonne = new Map();
+
+  for (const alien of aliens) {
+    const alienLePlusBas = tireursParColonne.get(alien.colonne);
+    if (!alienLePlusBas || alien.y > alienLePlusBas.y) {
+      tireursParColonne.set(alien.colonne, alien);
+    }
+  }
+
+  const tireursPossibles = [...tireursParColonne.values()];
+  if (tireursPossibles.length === 0) {
+    return null;
+  }
+
+  const indexAleatoire = Math.floor(Math.random() * tireursPossibles.length);
+  return tireursPossibles[indexAleatoire];
+}
+
+function faireTirerAlien(etat) {
+  const tireur = choisirTireurAlien(etat.aliens);
+
+  if (!tireur) {
     return;
   }
 
-  const speedBoost =
-    (GAME_CONFIG.aliens.rows * GAME_CONFIG.aliens.columns - state.aliens.length) *
-    GAME_CONFIG.aliens.speedStep;
-  const velocityX = (state.alienSpeed + speedBoost) * state.alienDirection;
-
-  for (const alien of state.aliens) {
-    alien.x += velocityX * deltaSeconds;
-  }
-
-  const bounds = getAlienBounds(state.aliens);
-  const hitRightWall = bounds.maxX >= GAME_CONFIG.width - 12;
-  const hitLeftWall = bounds.minX <= 12;
-
-  if (hitLeftWall || hitRightWall) {
-    state.alienDirection *= -1;
-
-    for (const alien of state.aliens) {
-      alien.x = clamp(alien.x, 12, GAME_CONFIG.width - alien.width - 12);
-      alien.y += GAME_CONFIG.aliens.dropDistance;
-    }
-  }
-
-  state.alienFireCooldown = Math.max(0, state.alienFireCooldown - deltaSeconds);
-
-  if (state.alienFireCooldown === 0) {
-    const shootersByColumn = new Map();
-
-    for (const alien of state.aliens) {
-      const current = shootersByColumn.get(alien.column);
-      if (!current || alien.y > current.y) {
-        shootersByColumn.set(alien.column, alien);
-      }
-    }
-
-    const shooters = [...shootersByColumn.values()];
-
-    if (shooters.length > 0) {
-      const shooter = shooters[Math.floor(Math.random() * shooters.length)];
-      spawnBullet(
-        state,
-        'alien',
-        shooter.x + shooter.width / 2 - GAME_CONFIG.bullets.width / 2,
-        shooter.y + shooter.height + 6,
-        GAME_CONFIG.bullets.alienSpeed,
-      );
-    }
-
-    state.alienFireCooldown = GAME_CONFIG.aliens.fireCooldownSeconds;
-  }
-
-  if (bounds.maxY >= state.player.y) {
-    state.phase = 'game-over';
-  }
-}
-
-function updateBullets(state, deltaSeconds) {
-  for (const bullet of state.bullets) {
-    bullet.y += bullet.velocityY * deltaSeconds;
-  }
-
-  state.bullets = state.bullets.filter(
-    (bullet) => bullet.y + bullet.height >= -24 && bullet.y <= GAME_CONFIG.height + 24,
+  creerProjectile(
+    etat,
+    'alien',
+    tireur.x + tireur.largeur / 2 - CONFIG_JEU.projectiles.largeur / 2,
+    tireur.y + tireur.hauteur + 6,
+    CONFIG_JEU.projectiles.vitesseAlien,
   );
 }
 
-function damagePlayer(state) {
-  if (state.player.shieldSeconds > 0) {
+function mettreAJourTirAlien(etat, deltaSecondes) {
+  etat.delaiTirAlien = Math.max(0, etat.delaiTirAlien - deltaSecondes);
+
+  if (etat.delaiTirAlien !== 0) {
     return;
   }
 
-  state.lives -= 1;
-  state.player.shieldSeconds = GAME_CONFIG.player.respawnShieldSeconds;
+  faireTirerAlien(etat);
+  etat.delaiTirAlien = CONFIG_JEU.aliens.delaiEntreTirs;
+}
 
-  if (state.lives <= 0) {
-    state.phase = 'game-over';
+function verifierDefaiteParDescente(etat, bords) {
+  if (bords.maximumY >= etat.joueur.y) {
+    etat.phase = 'game-over';
   }
 }
 
-function handleCollisions(state) {
-  const remainingBullets = [];
-  const destroyedAliens = new Set();
-
-  for (const bullet of state.bullets) {
-    let bulletConsumed = false;
-
-    if (bullet.owner === 'player') {
-      for (const alien of state.aliens) {
-        if (destroyedAliens.has(alien.id)) {
-          continue;
-        }
-
-        if (isColliding(bullet, alien)) {
-          destroyedAliens.add(alien.id);
-          state.score += alien.points;
-          bulletConsumed = true;
-          break;
-        }
-      }
-    } else if (isColliding(bullet, state.player)) {
-      damagePlayer(state);
-      bulletConsumed = true;
-    }
-
-    if (!bulletConsumed) {
-      remainingBullets.push(bullet);
-    }
+function mettreAJourAliens(etat, deltaSecondes) {
+  if (etat.aliens.length === 0) {
+    etat.phase = 'victory';
+    return;
   }
 
-  if (destroyedAliens.size > 0) {
-    state.aliens = state.aliens.filter((alien) => !destroyedAliens.has(alien.id));
+  deplacerAliensHorizontalement(etat, deltaSecondes);
+
+  const bords = calculerBordsAliens(etat.aliens);
+  if (doitInverserFlotte(bords)) {
+    faireDescendreFlotte(etat);
   }
 
-  state.bullets = remainingBullets;
+  mettreAJourTirAlien(etat, deltaSecondes);
+  verifierDefaiteParDescente(etat, calculerBordsAliens(etat.aliens));
 }
 
-export function updateGame(state, input, deltaSeconds) {
-  if (state.phase !== 'running') {
+function projectileEstDansLaZone(projectile) {
+  return projectile.y + projectile.hauteur >= -24 && projectile.y <= CONFIG_JEU.hauteur + 24;
+}
+
+function deplacerProjectiles(etat, deltaSecondes) {
+  for (const projectile of etat.projectiles) {
+    projectile.y += projectile.vitesseVerticale * deltaSecondes;
+  }
+
+  etat.projectiles = etat.projectiles.filter(projectileEstDansLaZone);
+}
+
+function infligerDegatAuJoueur(etat) {
+  if (etat.joueur.bouclierSecondes > 0) {
     return;
   }
 
-  state.timeLeftSeconds = Math.max(0, state.timeLeftSeconds - deltaSeconds);
+  etat.vies -= 1;
+  etat.joueur.bouclierSecondes = CONFIG_JEU.joueur.dureeBouclierReapparition;
 
-  if (state.timeLeftSeconds === 0) {
-    state.phase = 'game-over';
+  if (etat.vies <= 0) {
+    etat.phase = 'game-over';
+  }
+}
+
+function trouverAlienTouche(projectile, aliens, idsAliensDetruits) {
+  for (const alien of aliens) {
+    if (idsAliensDetruits.has(alien.id)) {
+      continue;
+    }
+
+    if (collisionne(projectile, alien)) {
+      return alien;
+    }
+  }
+
+  return null;
+}
+
+function resoudreProjectileJoueur(etat, projectile, idsAliensDetruits) {
+  const alienTouche = trouverAlienTouche(projectile, etat.aliens, idsAliensDetruits);
+
+  if (!alienTouche) {
+    return false;
+  }
+
+  idsAliensDetruits.add(alienTouche.id);
+  etat.score += alienTouche.points;
+  return true;
+}
+
+function resoudreProjectileAlien(etat, projectile) {
+  if (!collisionne(projectile, etat.joueur)) {
+    return false;
+  }
+
+  infligerDegatAuJoueur(etat);
+  return true;
+}
+
+function projectileEstConsomme(etat, projectile, idsAliensDetruits) {
+  if (projectile.proprietaire === 'joueur') {
+    return resoudreProjectileJoueur(etat, projectile, idsAliensDetruits);
+  }
+
+  return resoudreProjectileAlien(etat, projectile);
+}
+
+function retirerAliensDetruits(etat, idsAliensDetruits) {
+  if (idsAliensDetruits.size === 0) {
     return;
   }
 
-  updatePlayer(state, input, deltaSeconds);
-  updateAliens(state, deltaSeconds);
+  etat.aliens = etat.aliens.filter((alien) => !idsAliensDetruits.has(alien.id));
+}
 
-  if (state.phase !== 'running') {
+function resoudreCollisions(etat) {
+  const projectilesRestants = [];
+  const idsAliensDetruits = new Set();
+
+  for (const projectile of etat.projectiles) {
+    const estConsomme = projectileEstConsomme(etat, projectile, idsAliensDetruits);
+    if (!estConsomme) {
+      projectilesRestants.push(projectile);
+    }
+  }
+
+  retirerAliensDetruits(etat, idsAliensDetruits);
+  etat.projectiles = projectilesRestants;
+}
+
+function mettreAJourChronometre(etat, deltaSecondes) {
+  etat.tempsRestantSecondes = Math.max(0, etat.tempsRestantSecondes - deltaSecondes);
+
+  if (etat.tempsRestantSecondes === 0) {
+    etat.phase = 'game-over';
+  }
+}
+
+export function mettreAJourJeu(etat, entrees, deltaSecondes) {
+  if (etat.phase !== 'running') {
     return;
   }
 
-  updateBullets(state, deltaSeconds);
-  handleCollisions(state);
+  mettreAJourChronometre(etat, deltaSecondes);
+  if (etat.phase !== 'running') {
+    return;
+  }
 
-  if (state.phase === 'running' && state.aliens.length === 0) {
-    state.phase = 'victory';
+  // On separe deplacement et tir pour garder une logique facile a lire.
+  deplacerJoueur(etat, entrees, deltaSecondes);
+  mettreAJourTirJoueur(etat, entrees, deltaSecondes);
+  mettreAJourAliens(etat, deltaSecondes);
+
+  if (etat.phase !== 'running') {
+    return;
+  }
+
+  deplacerProjectiles(etat, deltaSecondes);
+  resoudreCollisions(etat);
+
+  if (etat.phase === 'running' && etat.aliens.length === 0) {
+    etat.phase = 'victory';
   }
 }

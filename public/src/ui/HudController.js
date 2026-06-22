@@ -1,72 +1,79 @@
-function formatTime(timeLeftSeconds) {
-  const totalSeconds = Math.ceil(timeLeftSeconds);
-  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-  const seconds = String(totalSeconds % 60).padStart(2, '0');
-  return `${minutes}:${seconds}`;
+function formaterTemps(tempsRestantSecondes) {
+  const totalSecondes = Math.ceil(tempsRestantSecondes);
+  const minutes = String(Math.floor(totalSecondes / 60)).padStart(2, '0');
+  const secondes = String(totalSecondes % 60).padStart(2, '0');
+  return `${minutes}:${secondes}`;
 }
 
-export class HudController {
+const MESSAGES_PHASE = {
+  paused: {
+    titre: 'En pause',
+    texte: '`Echap` ou `P` pour continuer, `R` pour recommencer.',
+    afficherContinuer: true,
+  },
+  'game-over': {
+    titre: 'Partie terminee',
+    texte: 'Les aliens ont gagne. Appuie sur `R` pour relancer.',
+    afficherContinuer: false,
+  },
+  victory: {
+    titre: 'Victoire',
+    texte: 'La flotte est detruite. Appuie sur `R` pour rejouer.',
+    afficherContinuer: false,
+  },
+};
+
+export class ControleurHud {
   constructor(elements) {
     this.elements = elements;
-    this.lastPhase = '';
+    this.dernierePhase = '';
   }
 
-  render(state, perf) {
-    const formattedTime = formatTime(state.timeLeftSeconds);
+  rendre(etat, performances) {
+    this.mettreAJourStatistiques(etat, performances);
 
-    this.elements.hudTimer.textContent = formattedTime;
-    this.elements.hudScore.textContent = String(state.score);
-    this.elements.hudLives.textContent = String(state.lives);
-    this.elements.hudFps.textContent = String(perf.fps);
-
-    this.elements.menuTimer.textContent = formattedTime;
-    this.elements.menuScore.textContent = String(state.score);
-    this.elements.menuLives.textContent = String(state.lives);
-    this.elements.menuFps.textContent = `${perf.fps}`;
-
-    if (this.lastPhase !== state.phase) {
-      this.lastPhase = state.phase;
-      this.syncOverlay(state.phase);
+    if (this.dernierePhase !== etat.phase) {
+      this.dernierePhase = etat.phase;
+      this.synchroniserSuperposition(etat.phase);
     }
   }
 
-  syncOverlay(phase) {
-    const {
-      overlay,
-      overlayTitle,
-      overlayText,
-      continueButton,
-    } = this.elements;
+  mettreAJourStatistiques(etat, performances) {
+    const tempsFormate = formaterTemps(etat.tempsRestantSecondes);
 
-    if (phase === 'paused') {
-      overlay.classList.add('visible');
-      overlayTitle.textContent = 'En pause';
-      overlayText.textContent = '`Echap` ou `P` pour continuer, `R` pour recommencer.';
-      continueButton.hidden = false;
-      continueButton.disabled = false;
+    this.elements.hudTimer.textContent = tempsFormate;
+    this.elements.hudScore.textContent = String(etat.score);
+    this.elements.hudLives.textContent = String(etat.vies);
+    this.elements.hudFps.textContent = String(performances.fps);
+
+    this.elements.menuTemps.textContent = tempsFormate;
+    this.elements.menuScore.textContent = String(etat.score);
+    this.elements.menuVies.textContent = String(etat.vies);
+    this.elements.menuFps.textContent = String(performances.fps);
+  }
+
+  synchroniserSuperposition(phase) {
+    const message = MESSAGES_PHASE[phase];
+
+    if (!message) {
+      this.masquerSuperposition();
       return;
     }
 
-    if (phase === 'game-over') {
-      overlay.classList.add('visible');
-      overlayTitle.textContent = 'Partie terminee';
-      overlayText.textContent = 'Les aliens ont gagne. Appuie sur `R` pour relancer.';
-      continueButton.hidden = true;
-      continueButton.disabled = true;
-      return;
-    }
+    this.afficherSuperposition(message);
+  }
 
-    if (phase === 'victory') {
-      overlay.classList.add('visible');
-      overlayTitle.textContent = 'Victoire';
-      overlayText.textContent = 'La flotte est detruite. Appuie sur `R` pour rejouer.';
-      continueButton.hidden = true;
-      continueButton.disabled = true;
-      return;
-    }
+  afficherSuperposition(message) {
+    this.elements.superposition.classList.add('visible');
+    this.elements.titreSuperposition.textContent = message.titre;
+    this.elements.texteSuperposition.textContent = message.texte;
+    this.elements.boutonContinuer.hidden = !message.afficherContinuer;
+    this.elements.boutonContinuer.disabled = !message.afficherContinuer;
+  }
 
-    overlay.classList.remove('visible');
-    continueButton.hidden = false;
-    continueButton.disabled = false;
+  masquerSuperposition() {
+    this.elements.superposition.classList.remove('visible');
+    this.elements.boutonContinuer.hidden = false;
+    this.elements.boutonContinuer.disabled = false;
   }
 }
