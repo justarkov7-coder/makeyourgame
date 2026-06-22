@@ -1,0 +1,33 @@
+export const GAME_CONFIG = {
+  width: 960,
+  height: 640,
+  initialLives: 3,
+  roundDurationSeconds: 120,
+  player: {
+    width: 58,
+    height: 26,
+    speed: 420,
+    shootCooldown: 0.22,
+    respawnShieldSeconds: 1.1,
+  },
+  aliens: {
+    columns: 9,
+    rows: 5,
+    width: 44,
+    height: 30,
+    gapX: 18,
+    gapY: 18,
+    startX: 120,
+    startY: 84,
+    baseSpeed: 52,
+    speedStep: 8,
+    dropDistance: 22,
+    fireCooldownSeconds: 0.68,
+  },
+  bullets: {
+    playerSpeed: 540,
+    alienSpeed: 310,
+    width: 6,
+    height: 16,
+  },
+};

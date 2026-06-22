@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Space Invaders DOM</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="game-panel" aria-label="Jeu Space Invaders">
+        <header class="topbar">
+          <div class="brand">
+            <p class="eyebrow">DOM Arcade</p>
+            <h1>Space Invaders</h1>
+          </div>
+          <div class="live-stats" aria-label="Statistiques du jeu">
+            <div class="stat-card">
+              <span class="label">Temps</span>
+              <strong id="hud-timer">02:00</strong>
+            </div>
+            <div class="stat-card">
+              <span class="label">Score</span>
+              <strong id="hud-score">0</strong>
+            </div>
+            <div class="stat-card">
+              <span class="label">Vies</span>
+              <strong id="hud-lives">3</strong>
+            </div>
+            <div class="stat-card debug">
+              <span class="label">FPS</span>
+              <strong id="hud-fps">60</strong>
+            </div>
+          </div>
+        </header>
+
+        <section class="game-frame">
+          <div
+            id="game-scene"
+            class="game-scene"
+            role="application"
+            aria-label="Zone de jeu"
+          >
+            <div id="game-world" class="game-world">
+              <div class="stars"></div>
+              <div id="entity-layer" class="entity-layer"></div>
+            </div>
+            <aside id="overlay" class="overlay" aria-live="polite">
+              <div class="overlay-card">
+                <p class="overlay-tag">Pause Menu</p>
+                <h2 id="overlay-title">En pause</h2>
+                <p id="overlay-text" class="overlay-text">
+                  `Echap` ou `P` pour continuer, `R` pour recommencer.
+                </p>
+
+                <div class="overlay-scoreboard" aria-label="Scoreboard">
+                  <div>
+                    <span>Temps</span>
+                    <strong id="menu-timer">02:00</strong>
+                  </div>
+                  <div>
+                    <span>Score</span>
+                    <strong id="menu-score">0</strong>
+                  </div>
+                  <div>
+                    <span>Vies</span>
+                    <strong id="menu-lives">3</strong>
+                  </div>
+                  <div>
+                    <span>FPS</span>
+                    <strong id="menu-fps">60</strong>
+                  </div>
+                </div>
+
+                <div class="overlay-actions">
+                  <button id="continue-button" type="button">Continuer</button>
+                  <button id="restart-button" type="button">Recommencer</button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <footer class="controls">
+          <span>Deplacer: fleches ou A/D</span>
+          <span>Tirer: espace</span>
+          <span>Pause: Echap ou P</span>
+          <span>Restart: R</span>
+        </footer>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
