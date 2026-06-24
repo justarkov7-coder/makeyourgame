@@ -7,6 +7,7 @@ import { creerEtatInitial } from './game/createState.js';
 import { mettreAJourJeu } from './game/updateGame.js';
 import { RenduDom } from './render/DomRenderer.js';
 import { ServiceClassement } from './services/ServiceClassement.js';
+import { ControleurPleinEcran } from './ui/ControleurPleinEcran.js';
 import { ControleurHud } from './ui/HudController.js';
 import { ControleurSuperposition } from './ui/ControleurSuperposition.js';
 
@@ -36,6 +37,7 @@ function recupererElementsInterface() {
     pageIndicator: document.getElementById('page-indicator'),
     boutonPagePrecedente: document.getElementById('page-prev'),
     boutonPageSuivante: document.getElementById('page-next'),
+    boutonPleinEcran: document.getElementById('fullscreen-button'),
     hudTimer: document.getElementById('hud-timer'),
     hudScore: document.getElementById('hud-score'),
     hudLives: document.getElementById('hud-lives'),
@@ -60,6 +62,10 @@ function creerDependances(elements) {
     entrees: new GestionnaireEntrees(),
     performances: new MoniteurPerformance(),
     serviceClassement: new ServiceClassement(),
+    pleinEcran: new ControleurPleinEcran({
+      bouton: elements.boutonPleinEcran,
+      cible: document.documentElement,
+    }),
   };
 }
 
@@ -67,12 +73,13 @@ function reinitialiserEtat(etatRef, idCarte) {
   etatRef.valeur = creerEtatInitial(idCarte);
 }
 
-function creerActionsJeu(etatRef, serviceClassement) {
+function creerActionsJeu(etatRef, serviceClassement, pleinEcran) {
   return {
     choisirCarte(idCarte) {
       reinitialiserEtat(etatRef, idCarte);
     },
-    demarrer() {
+    async demarrer() {
+      await pleinEcran.entrerSilencieusement();
       if (etatRef.valeur.phase === 'intro') {
         etatRef.valeur.phase = 'running';
       }
@@ -108,6 +115,9 @@ function creerActionsJeu(etatRef, serviceClassement) {
     },
     async pageSuivante() {
       await chargerPageClassement(etatRef, serviceClassement, etatRef.valeur.classement.page + 1);
+    },
+    async basculerPleinEcran() {
+      await pleinEcran.basculer();
     },
   };
 }
@@ -177,6 +187,7 @@ function brancherRaccourcisClavier(entrees, actions) {
   entrees.surAppui('Escape', actions.basculerPause);
   entrees.surAppui('KeyP', actions.basculerPause);
   entrees.surAppui('KeyR', actions.redemarrer);
+  entrees.surAppui('KeyF', actions.basculerPleinEcran);
   entrees.attacher();
 }
 
@@ -184,6 +195,7 @@ function brancherBoutons(elements, superposition, actions) {
   elements.boutonDemarrer.addEventListener('click', actions.demarrer);
   elements.boutonContinuer.addEventListener('click', actions.reprendre);
   elements.boutonRecommencer.addEventListener('click', actions.redemarrer);
+  elements.boutonPleinEcran.addEventListener('click', actions.basculerPleinEcran);
   superposition.initialiserCartes(actions.choisirCarte);
   superposition.initialiserFormulaire(actions.soumettreScore);
   superposition.initialiserPagination(actions.pagePrecedente, actions.pageSuivante);
@@ -203,15 +215,16 @@ function creerBoucle(etatRef, entrees, performances, rendu, hud, superposition) 
 
 function initialiserJeu() {
   const elements = recupererElementsInterface();
-  const { rendu, hud, superposition, entrees, performances, serviceClassement } =
+  const { rendu, hud, superposition, entrees, performances, serviceClassement, pleinEcran } =
     creerDependances(elements);
   const etatRef = { valeur: creerEtatInitial() };
-  const actions = creerActionsJeu(etatRef, serviceClassement);
+  const actions = creerActionsJeu(etatRef, serviceClassement, pleinEcran);
 
   // Expose l'etat en debug pour les tests navigateur locaux.
   window.__etatRef = etatRef;
   window.__actions = actions;
 
+  pleinEcran.initialiser();
   brancherRaccourcisClavier(entrees, actions);
   brancherBoutons(elements, superposition, actions);
   window.addEventListener('blur', actions.mettreEnPauseSiActif);

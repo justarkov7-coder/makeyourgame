@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Space Invaders DOM</title>
+    <title>Space Invaders | Tactical Sprite Mode</title>
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
@@ -12,27 +12,32 @@
       <section class="game-panel" aria-label="Jeu Space Invaders">
         <header class="topbar">
           <div class="brand">
-            <p class="eyebrow">DOM Arcade</p>
+            <p class="eyebrow">Orbital Arcade</p>
             <h1>Space Invaders</h1>
-            <p class="brand-subtitle">Mode histoire, trois cartes et classement pilote.</p>
+            <p class="brand-subtitle">Cockpit plein ecran, sprites dedies et secteur tactique.</p>
           </div>
-          <div class="live-stats" aria-label="Statistiques du jeu">
-            <div class="stat-card">
-              <span class="label">Temps</span>
-              <strong id="hud-timer">02:00</strong>
+          <div class="topbar-side">
+            <div class="live-stats" aria-label="Statistiques du jeu">
+              <div class="stat-card">
+                <span class="label">Temps</span>
+                <strong id="hud-timer">02:00</strong>
+              </div>
+              <div class="stat-card">
+                <span class="label">Score</span>
+                <strong id="hud-score">0</strong>
+              </div>
+              <div class="stat-card">
+                <span class="label">Vies</span>
+                <strong id="hud-lives">3</strong>
+              </div>
+              <div class="stat-card debug">
+                <span class="label">FPS</span>
+                <strong id="hud-fps">60</strong>
+              </div>
             </div>
-            <div class="stat-card">
-              <span class="label">Score</span>
-              <strong id="hud-score">0</strong>
-            </div>
-            <div class="stat-card">
-              <span class="label">Vies</span>
-              <strong id="hud-lives">3</strong>
-            </div>
-            <div class="stat-card debug">
-              <span class="label">FPS</span>
-              <strong id="hud-fps">60</strong>
-            </div>
+            <button id="fullscreen-button" class="fullscreen-button" type="button">
+              Plein ecran
+            </button>
           </div>
         </header>
 
@@ -130,6 +135,7 @@
           <span>Deplacer: fleches ou A/D</span>
           <span>Tirer: espace</span>
           <span>Pause: Echap ou P</span>
+          <span>Plein ecran: F</span>
           <span>Relancer: R</span>
         </footer>
       </section>
