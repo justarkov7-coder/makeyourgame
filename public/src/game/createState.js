@@ -37,7 +37,7 @@ function creerAliens() {
 function creerJoueurInitial() {
   return {
     x: CONFIG_JEU.largeur / 2 - CONFIG_JEU.joueur.largeur / 2,
-    y: CONFIG_JEU.hauteur - 76,
+    y: CONFIG_JEU.hauteur - CONFIG_JEU.joueur.hauteur - 28,
     largeur: CONFIG_JEU.joueur.largeur,
     hauteur: CONFIG_JEU.joueur.hauteur,
     delaiTir: 0,

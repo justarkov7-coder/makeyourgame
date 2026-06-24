@@ -1,4 +1,5 @@
 import { RenduCarte } from './RenduCarte.js';
+import { CONFIG_JEU } from '../game/config.js';
 
 function appliquerBoite(element, entite) {
   element.style.width = `${entite.largeur}px`;
@@ -10,11 +11,15 @@ export class RenduDom {
   constructor({ scene, monde, coucheCarte, coucheEntites }) {
     this.scene = scene;
     this.monde = monde;
+    this.largeurMonde = CONFIG_JEU.largeur;
+    this.hauteurMonde = CONFIG_JEU.hauteur;
     this.renduCarte = new RenduCarte({ coucheCarte });
     this.coucheEntites = coucheEntites;
     this.elementsAliens = new Map();
     this.elementsProjectiles = new Map();
     this.elementJoueur = this.creerElementJoueur();
+    this.monde.style.width = `${this.largeurMonde}px`;
+    this.monde.style.height = `${this.hauteurMonde}px`;
     this.coucheEntites.innerHTML = '';
     this.coucheEntites.append(this.elementJoueur);
     this.mettreEnPageMonde = this.mettreEnPageMonde.bind(this);
@@ -24,21 +29,24 @@ export class RenduDom {
 
   mettreEnPageMonde() {
     const rectangle = this.scene.getBoundingClientRect();
-    const echelle = Math.min(rectangle.width / 960, rectangle.height / 640);
-    const decalageX = (rectangle.width - 960 * echelle) / 2;
-    const decalageY = (rectangle.height - 640 * echelle) / 2;
+    const echelle = Math.min(
+      rectangle.width / this.largeurMonde,
+      rectangle.height / this.hauteurMonde,
+    );
+    const decalageX = (rectangle.width - this.largeurMonde * echelle) / 2;
+    const decalageY = (rectangle.height - this.hauteurMonde * echelle) / 2;
     this.monde.style.transform = `translate(${decalageX}px, ${decalageY}px) scale(${echelle})`;
   }
 
   creerElementJoueur() {
     const element = document.createElement('div');
-    element.className = 'entity player';
+    element.className = 'entity sprite sprite-player';
     return element;
   }
 
   creerElementAlien(alien) {
     const element = document.createElement('div');
-    element.className = `entity alien ${alien.type}`;
+    element.className = `entity sprite sprite-alien ${alien.type}`;
     this.coucheEntites.append(element);
     this.elementsAliens.set(alien.id, element);
     return element;
@@ -47,7 +55,7 @@ export class RenduDom {
   creerElementProjectile(projectile) {
     const typeProjectile = projectile.proprietaire === 'joueur' ? 'player-shot' : 'alien-shot';
     const element = document.createElement('div');
-    element.className = `entity bullet ${typeProjectile}`;
+    element.className = `entity sprite bullet ${typeProjectile}`;
     this.coucheEntites.append(element);
     this.elementsProjectiles.set(projectile.id, element);
     return element;
@@ -62,7 +70,7 @@ export class RenduDom {
 
   rendreJoueur(joueur) {
     appliquerBoite(this.elementJoueur, joueur);
-    this.elementJoueur.style.opacity = joueur.bouclierSecondes > 0 ? '0.5' : '1';
+    this.elementJoueur.classList.toggle('is-shielded', joueur.bouclierSecondes > 0);
   }
 
   rendreAliens(aliens) {
