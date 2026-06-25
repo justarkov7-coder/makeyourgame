@@ -10,37 +10,6 @@
   <body>
     <main class="app-shell">
       <section class="game-panel" aria-label="Jeu Space Invaders">
-        <header class="topbar">
-          <div class="brand">
-            <p class="eyebrow">Orbital Arcade</p>
-            <h1>Space Invaders</h1>
-            <p class="brand-subtitle">Cockpit plein ecran, sprites dedies et secteur tactique.</p>
-          </div>
-          <div class="topbar-side">
-            <div class="live-stats" aria-label="Statistiques du jeu">
-              <div class="stat-card">
-                <span class="label">Temps</span>
-                <strong id="hud-timer">02:00</strong>
-              </div>
-              <div class="stat-card">
-                <span class="label">Score</span>
-                <strong id="hud-score">0</strong>
-              </div>
-              <div class="stat-card">
-                <span class="label">Vies</span>
-                <strong id="hud-lives">3</strong>
-              </div>
-              <div class="stat-card debug">
-                <span class="label">FPS</span>
-                <strong id="hud-fps">60</strong>
-              </div>
-            </div>
-            <button id="fullscreen-button" class="fullscreen-button" type="button">
-              Plein ecran
-            </button>
-          </div>
-        </header>
-
         <section class="game-frame">
           <div
             id="game-scene"
@@ -48,6 +17,43 @@
             role="application"
             aria-label="Zone de jeu"
           >
+            <div class="hud-overlay" aria-label="Statistiques du jeu">
+              <div class="hud-anchor hud-top-right">
+                <div class="hud-stack">
+                  <div class="hud-chip">
+                    <span class="label">Score</span>
+                    <strong id="hud-score">0</strong>
+                  </div>
+
+                  <div id="hud-boss" class="boss-hud" hidden>
+                    <div class="boss-hud-head">
+                      <span class="label">Boss</span>
+                      <strong id="hud-boss-life">140 / 140</strong>
+                    </div>
+                    <div class="boss-hud-bar">
+                      <div id="hud-boss-bar" class="boss-hud-bar-fill"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="hud-anchor hud-bottom-left">
+                <div class="hud-chip">
+                  <span class="label">Vies</span>
+                  <strong id="hud-lives">3</strong>
+                </div>
+              </div>
+
+              <div class="hud-anchor hud-bottom-right">
+                <div class="hud-chip">
+                  <span class="label">Temps</span>
+                  <strong id="hud-timer">02:00</strong>
+                </div>
+              </div>
+
+              <strong id="hud-fps" class="hud-fps-hidden">60</strong>
+            </div>
+
             <div id="game-world" class="game-world">
               <div id="tile-layer" class="tile-layer"></div>
               <div class="stars"></div>
@@ -77,10 +83,6 @@
                   <div>
                     <span>Vies</span>
                     <strong id="menu-lives">3</strong>
-                  </div>
-                  <div>
-                    <span>FPS</span>
-                    <strong id="menu-fps">60</strong>
                   </div>
                 </div>
 
@@ -122,7 +124,6 @@
                 </section>
 
                 <div class="overlay-actions">
-                  <button id="start-button" type="button" hidden>Demarrer</button>
                   <button id="continue-button" type="button" hidden>Continuer</button>
                   <button id="restart-button" type="button" hidden>Recommencer</button>
                 </div>
@@ -130,14 +131,6 @@
             </aside>
           </div>
         </section>
-
-        <footer class="controls">
-          <span>Deplacer: fleches ou A/D</span>
-          <span>Tirer: espace</span>
-          <span>Pause: Echap ou P</span>
-          <span>Plein ecran: F</span>
-          <span>Relancer: R</span>
-        </footer>
       </section>
     </main>
 
