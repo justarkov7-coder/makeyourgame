@@ -1,4 +1,5 @@
 import { CONFIG_JEU } from './config.js';
+import { recupererBonusBoss, tirerBonusBossAleatoire } from './bonusBoss.js';
 import { creerBoss, creerDeploiementAliens } from './createState.js';
 import { formaterTemps } from '../utils/temps.js';
 
@@ -62,7 +63,7 @@ function deplacerJoueur(etat, entrees, deltaSecondes) {
   joueur.directionAnimation = direction;
 
   joueur.x = borner(
-    joueur.x + direction * CONFIG_JEU.joueur.vitesse * deltaSecondes,
+    joueur.x + direction * joueur.vitesse * deltaSecondes,
     0,
     CONFIG_JEU.largeur - joueur.largeur,
   );
@@ -85,7 +86,7 @@ function mettreAJourTirJoueur(etat, entrees, deltaSecondes) {
     joueur.y - CONFIG_JEU.projectiles.hauteur,
     -CONFIG_JEU.projectiles.vitesseJoueur,
   );
-  joueur.delaiTir = CONFIG_JEU.joueur.delaiEntreTirs;
+  joueur.delaiTir = joueur.delaiEntreTirs;
   joueur.animationTirSecondes = CONFIG_JEU.joueur.dureeAnimationTir;
 }
 
@@ -140,7 +141,85 @@ function terminerBoss(etat) {
   etat.boss = null;
   etat.bossesVaincus += 1;
   nettoyerProjectilesHostiles(etat);
-  creerNouvelleVague(etat);
+  preparerMachineSousBoss(etat);
+}
+
+function preparerMachineSousBoss(etat) {
+  const resultat = tirerBonusBossAleatoire();
+
+  etat.phase = 'bonus-boss';
+  etat.resultat = null;
+  etat.bonusBoss = {
+    sequence: etat.bonusBoss.sequence + 1,
+    bonusId: resultat.bonusId,
+    reelsFinaux: resultat.reelsFinaux,
+    occurrencesGagnantes: resultat.occurrencesGagnantes,
+    dureeSecondes: resultat.dureeSecondes,
+    estRevele: false,
+    estApplique: false,
+  };
+}
+
+function appliquerBonusBoss(etat) {
+  if (etat.bonusBoss.estApplique || !etat.bonusBoss.bonusId) {
+    return;
+  }
+
+  const bonus = recupererBonusBoss(etat.bonusBoss.bonusId);
+  reinitialiserStatsBonusJoueur(etat);
+
+  etat.bonusActif = {
+    bonusId: bonus.id,
+    titre: bonus.titre,
+    symbole: bonus.symbole,
+    tempsRestantSecondes: etat.bonusBoss.dureeSecondes,
+    dureeSecondes: etat.bonusBoss.dureeSecondes,
+    occurrencesGagnantes: etat.bonusBoss.occurrencesGagnantes,
+  };
+
+  if (bonus.id === 'rapid-fire') {
+    etat.joueur.delaiEntreTirs = Math.max(0.08, CONFIG_JEU.joueur.delaiEntreTirs * 0.72);
+  }
+
+  if (bonus.id === 'hull-up') {
+    etat.vies += 1;
+  }
+
+  if (bonus.id === 'thruster-up') {
+    etat.joueur.vitesse = Math.min(760, CONFIG_JEU.joueur.vitesse * 1.22);
+  }
+
+  etat.bonusBoss.estApplique = true;
+}
+
+function reinitialiserStatsBonusJoueur(etat) {
+  etat.joueur.vitesse = CONFIG_JEU.joueur.vitesse;
+  etat.joueur.delaiEntreTirs = CONFIG_JEU.joueur.delaiEntreTirs;
+}
+
+function mettreAJourBonusActif(etat, deltaSecondes) {
+  if (!etat.bonusActif?.bonusId) {
+    return;
+  }
+
+  etat.bonusActif.tempsRestantSecondes = Math.max(
+    0,
+    etat.bonusActif.tempsRestantSecondes - deltaSecondes,
+  );
+
+  if (etat.bonusActif.tempsRestantSecondes > 0) {
+    return;
+  }
+
+  reinitialiserStatsBonusJoueur(etat);
+  etat.bonusActif = {
+    bonusId: '',
+    titre: '',
+    symbole: '',
+    tempsRestantSecondes: 0,
+    dureeSecondes: 0,
+    occurrencesGagnantes: 0,
+  };
 }
 
 function declencherBossSiNecessaire(etat) {
@@ -544,7 +623,7 @@ function infligerDegatAuJoueur(etat) {
   }
 
   etat.vies -= 1;
-  etat.joueur.bouclierSecondes = CONFIG_JEU.joueur.dureeBouclierReapparition;
+  etat.joueur.bouclierSecondes = etat.joueur.dureeBouclierReapparition;
 
   if (etat.vies <= 0) {
     terminerPartie(etat, 'defeat');
@@ -691,6 +770,7 @@ export function mettreAJourJeu(etat, entrees, deltaSecondes) {
   }
 
   mettreAJourChronometre(etat, deltaSecondes);
+  mettreAJourBonusActif(etat, deltaSecondes);
   if (etat.phase !== 'running') {
     return;
   }
@@ -722,4 +802,39 @@ export function mettreAJourJeu(etat, entrees, deltaSecondes) {
     terminerPartie(etat, 'victory');
     return;
   }
+}
+
+export function revelerBonusBoss(etat) {
+  if (etat.phase !== 'bonus-boss' || etat.bonusBoss.estRevele) {
+    return;
+  }
+
+  appliquerBonusBoss(etat);
+  etat.bonusBoss.estRevele = true;
+}
+
+export function reprendreApresBonusBoss(etat) {
+  if (etat.phase !== 'bonus-boss' || !etat.bonusBoss.estRevele) {
+    return;
+  }
+
+  creerNouvelleVague(etat);
+  etat.bonusBoss = {
+    sequence: etat.bonusBoss.sequence,
+    bonusId: '',
+    reelsFinaux: [],
+    occurrencesGagnantes: 0,
+    dureeSecondes: 0,
+    estRevele: false,
+    estApplique: false,
+  };
+  etat.phase = 'running';
+}
+
+export function declencherBonusBossTest(etat) {
+  etat.boss = null;
+  etat.bossDoitApparaitre = false;
+  etat.resultat = null;
+  nettoyerProjectilesHostiles(etat);
+  preparerMachineSousBoss(etat);
 }

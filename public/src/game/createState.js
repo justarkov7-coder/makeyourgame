@@ -172,6 +172,9 @@ function creerJoueurInitial() {
     hauteur: CONFIG_JEU.joueur.hauteur,
     margeCollisionX: CONFIG_JEU.joueur.margeCollisionX,
     margeCollisionY: CONFIG_JEU.joueur.margeCollisionY,
+    vitesse: CONFIG_JEU.joueur.vitesse,
+    delaiEntreTirs: CONFIG_JEU.joueur.delaiEntreTirs,
+    dureeBouclierReapparition: CONFIG_JEU.joueur.dureeBouclierReapparition,
     delaiTir: 0,
     bouclierSecondes: 0,
     animationTirSecondes: 0,
@@ -215,6 +218,29 @@ function creerClassementInitial() {
   };
 }
 
+function creerBonusBossInitial() {
+  return {
+    sequence: 0,
+    bonusId: '',
+    reelsFinaux: [],
+    occurrencesGagnantes: 0,
+    dureeSecondes: 0,
+    estRevele: false,
+    estApplique: false,
+  };
+}
+
+function creerBonusActifInitial() {
+  return {
+    bonusId: '',
+    titre: '',
+    symbole: '',
+    tempsRestantSecondes: 0,
+    dureeSecondes: 0,
+    occurrencesGagnantes: 0,
+  };
+}
+
 export function creerEtatInitial(idCarte = CONFIG_JEU.cartes.idParDefaut) {
   const tempsRestantSecondes = 0;
   const carte = recupererCarte(idCarte);
@@ -242,6 +268,8 @@ export function creerEtatInitial(idCarte = CONFIG_JEU.cartes.idParDefaut) {
     aliens: aliensActifs,
     aliensEnReserve,
     boucliersBio: creerBoucliersBio(carte),
+    bonusBoss: creerBonusBossInitial(),
+    bonusActif: creerBonusActifInitial(),
     carte,
     classement: creerClassementInitial(),
   };

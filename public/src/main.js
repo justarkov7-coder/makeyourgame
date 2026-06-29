@@ -4,7 +4,12 @@ import { MoniteurPerformance } from './core/PerfMonitor.js';
 import { CONFIG_JEU } from './game/config.js';
 import { LISTE_CARTES } from './game/cartes.js';
 import { creerEtatInitial } from './game/createState.js';
-import { mettreAJourJeu } from './game/updateGame.js';
+import {
+  declencherBonusBossTest,
+  mettreAJourJeu,
+  reprendreApresBonusBoss,
+  revelerBonusBoss,
+} from './game/updateGame.js';
 import { RenduDom } from './render/DomRenderer.js';
 import { ServiceClassement } from './services/ServiceClassement.js';
 import { ControleurHud } from './ui/HudController.js';
@@ -25,6 +30,13 @@ function recupererElementsInterface() {
     panneauCartes: document.getElementById('map-panel'),
     optionsCartes: document.getElementById('map-options'),
     resumePanel: document.getElementById('resume-panel'),
+    panneauBonusBoss: document.getElementById('boss-bonus-panel'),
+    reelsBonusBoss: [
+      document.getElementById('boss-bonus-reel-1'),
+      document.getElementById('boss-bonus-reel-2'),
+      document.getElementById('boss-bonus-reel-3'),
+    ],
+    resultatBonusBoss: document.getElementById('boss-bonus-result'),
     formulaireScore: document.getElementById('score-form'),
     inputNom: document.getElementById('player-name'),
     boutonSoumettre: document.getElementById('submit-score-button'),
@@ -38,13 +50,26 @@ function recupererElementsInterface() {
     hudBoss: document.getElementById('hud-boss'),
     hudBossBar: document.getElementById('hud-boss-bar'),
     hudBossLife: document.getElementById('hud-boss-life'),
+    hudBonus: document.getElementById('hud-bonus'),
+    hudBonusIcon: document.getElementById('hud-bonus-icon'),
+    hudBonusName: document.getElementById('hud-bonus-name'),
+    hudBonusTime: document.getElementById('hud-bonus-time'),
     hudTimer: document.getElementById('hud-timer'),
     hudScore: document.getElementById('hud-score'),
     hudLives: document.getElementById('hud-lives'),
     menuTemps: document.getElementById('menu-timer'),
     menuScore: document.getElementById('menu-score'),
     menuVies: document.getElementById('menu-lives'),
+    debugBonusTrigger: document.getElementById('debug-bonus-trigger'),
   };
+}
+
+function estModeDebugActif() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).get('debug') === '1';
 }
 
 function creerDependances(elements) {
@@ -85,6 +110,16 @@ function creerActionsJeu(etatRef, serviceClassement) {
         etatRef.valeur.phase = 'running';
       }
     },
+    continuerContextuel() {
+      if (etatRef.valeur.phase === 'paused') {
+        etatRef.valeur.phase = 'running';
+        return;
+      }
+
+      if (etatRef.valeur.phase === 'bonus-boss') {
+        reprendreApresBonusBoss(etatRef.valeur);
+      }
+    },
     basculerPause() {
       if (etatRef.valeur.phase === 'running') {
         etatRef.valeur.phase = 'paused';
@@ -99,6 +134,12 @@ function creerActionsJeu(etatRef, serviceClassement) {
       if (etatRef.valeur.phase === 'running') {
         etatRef.valeur.phase = 'paused';
       }
+    },
+    revelerBonusBoss() {
+      revelerBonusBoss(etatRef.valeur);
+    },
+    declencherBonusBossTest() {
+      declencherBonusBossTest(etatRef.valeur);
     },
     async soumettreScore(nom) {
       await soumettreScore(etatRef, serviceClassement, nom);
@@ -173,15 +214,23 @@ async function chargerPageClassement(etatRef, serviceClassement, page) {
   }
 }
 
-function brancherRaccourcisClavier(entrees, actions) {
+function brancherRaccourcisClavier(entrees, actions, options = {}) {
   entrees.surAppui('KeyR', actions.redemarrer);
+  if (options.modeDebugActif) {
+    entrees.surAppui('KeyB', actions.declencherBonusBossTest);
+  }
   entrees.attacher();
 }
 
-function brancherBoutons(elements, superposition, actions) {
-  elements.boutonContinuer.addEventListener('click', actions.reprendre);
+function brancherBoutons(elements, superposition, actions, options = {}) {
+  elements.boutonContinuer.addEventListener('click', actions.continuerContextuel);
   elements.boutonRecommencer.addEventListener('click', actions.redemarrer);
+  if (options.modeDebugActif && elements.debugBonusTrigger) {
+    elements.debugBonusTrigger.hidden = false;
+    elements.debugBonusTrigger.addEventListener('click', actions.declencherBonusBossTest);
+  }
   superposition.initialiserNavigationClavier(actions);
+  superposition.initialiserBonusBoss(actions.revelerBonusBoss);
   superposition.initialiserCartes(actions.choisirCarte, actions.demarrer);
   superposition.initialiserFormulaire(actions.soumettreScore);
   superposition.initialiserPagination(actions.pagePrecedente, actions.pageSuivante);
@@ -200,6 +249,7 @@ function creerBoucle(etatRef, entrees, performances, rendu, hud, superposition) 
 }
 
 function initialiserJeu() {
+  const modeDebugActif = estModeDebugActif();
   const elements = recupererElementsInterface();
   const { rendu, hud, superposition, entrees, performances, serviceClassement } = creerDependances(elements);
   const etatRef = { valeur: creerEtatInitial() };
@@ -208,9 +258,10 @@ function initialiserJeu() {
   // Expose l'etat en debug pour les tests navigateur locaux.
   window.__etatRef = etatRef;
   window.__actions = actions;
+  window.__debug = { modeDebugActif };
 
-  brancherRaccourcisClavier(entrees, actions);
-  brancherBoutons(elements, superposition, actions);
+  brancherRaccourcisClavier(entrees, actions, { modeDebugActif });
+  brancherBoutons(elements, superposition, actions, { modeDebugActif });
   const boucle = creerBoucle(etatRef, entrees, performances, rendu, hud, superposition);
   rendu.rendre(etatRef.valeur);
   hud.rendre(etatRef.valeur);

@@ -10,6 +10,8 @@ export class ControleurHud {
       bossVie: '',
       bossRatio: -1,
       bossVisible: false,
+      bonusCle: '',
+      bonusVisible: false,
     };
   }
 
@@ -33,6 +35,8 @@ export class ControleurHud {
       this.elements.hudLives.textContent = vies;
     }
 
+    this.rendreBonusActif(etat);
+
     const bossVisible = etat.phase === 'running' && Boolean(etat.boss);
     if (this.dernieresValeurs.bossVisible !== bossVisible) {
       this.dernieresValeurs.bossVisible = bossVisible;
@@ -55,5 +59,32 @@ export class ControleurHud {
       this.dernieresValeurs.bossRatio = ratioVie;
       this.elements.hudBossBar.style.width = `${ratioVie * 100}%`;
     }
+  }
+
+  rendreBonusActif(etat) {
+    const bonusVisible = etat.phase === 'running' && Boolean(etat.bonusActif?.bonusId);
+
+    if (this.dernieresValeurs.bonusVisible !== bonusVisible) {
+      this.dernieresValeurs.bonusVisible = bonusVisible;
+      this.elements.hudBonus.hidden = !bonusVisible;
+    }
+
+    if (!bonusVisible) {
+      this.dernieresValeurs.bonusCle = '';
+      return;
+    }
+
+    const tempsRestant = Math.ceil(etat.bonusActif.tempsRestantSecondes);
+    const multiplicateur = etat.bonusActif.occurrencesGagnantes >= 3 ? 'x3' : 'x2';
+    const cleBonus = `${etat.bonusActif.bonusId}|${tempsRestant}|${multiplicateur}`;
+
+    if (this.dernieresValeurs.bonusCle === cleBonus) {
+      return;
+    }
+
+    this.dernieresValeurs.bonusCle = cleBonus;
+    this.elements.hudBonusIcon.dataset.bonusId = etat.bonusActif.bonusId;
+    this.elements.hudBonusName.textContent = `${etat.bonusActif.titre} ${multiplicateur}`;
+    this.elements.hudBonusTime.textContent = `${tempsRestant}s`;
   }
 }
