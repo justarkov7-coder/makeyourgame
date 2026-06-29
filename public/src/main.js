@@ -1,53 +1,124 @@
 import { BoucleDeJeu } from './core/GameLoop.js';
 import { GestionnaireEntrees } from './core/InputManager.js';
 import { MoniteurPerformance } from './core/PerfMonitor.js';
+import { CONFIG_JEU } from './game/config.js';
+import { LISTE_CARTES } from './game/cartes.js';
 import { creerEtatInitial } from './game/createState.js';
-import { mettreAJourJeu } from './game/updateGame.js';
+import {
+  declencherBonusBossTest,
+  mettreAJourJeu,
+  reprendreApresBonusBoss,
+  revelerBonusBoss,
+} from './game/updateGame.js';
 import { RenduDom } from './render/DomRenderer.js';
+import { ServiceClassement } from './services/ServiceClassement.js';
 import { ControleurHud } from './ui/HudController.js';
+import { ControleurSuperposition } from './ui/ControleurSuperposition.js';
 
 function recupererElementsInterface() {
   return {
     scene: document.getElementById('game-scene'),
     monde: document.getElementById('game-world'),
+    coucheCarte: document.getElementById('tile-layer'),
     coucheEntites: document.getElementById('entity-layer'),
     superposition: document.getElementById('overlay'),
+    tagSuperposition: document.getElementById('overlay-tag'),
+    titreSuperposition: document.getElementById('overlay-title'),
+    texteSuperposition: document.getElementById('overlay-text'),
     boutonContinuer: document.getElementById('continue-button'),
     boutonRecommencer: document.getElementById('restart-button'),
+    panneauCartes: document.getElementById('map-panel'),
+    optionsCartes: document.getElementById('map-options'),
+    resumePanel: document.getElementById('resume-panel'),
+    panneauBonusBoss: document.getElementById('boss-bonus-panel'),
+    reelsBonusBoss: [
+      document.getElementById('boss-bonus-reel-1'),
+      document.getElementById('boss-bonus-reel-2'),
+      document.getElementById('boss-bonus-reel-3'),
+    ],
+    resultatBonusBoss: document.getElementById('boss-bonus-result'),
+    formulaireScore: document.getElementById('score-form'),
+    inputNom: document.getElementById('player-name'),
+    boutonSoumettre: document.getElementById('submit-score-button'),
+    scoreFormMessage: document.getElementById('score-form-message'),
+    panneauClassement: document.getElementById('ranking-panel'),
+    rankingFeedback: document.getElementById('ranking-feedback'),
+    rankingRows: document.getElementById('ranking-rows'),
+    pageIndicator: document.getElementById('page-indicator'),
+    boutonPagePrecedente: document.getElementById('page-prev'),
+    boutonPageSuivante: document.getElementById('page-next'),
+    hudBoss: document.getElementById('hud-boss'),
+    hudBossBar: document.getElementById('hud-boss-bar'),
+    hudBossLife: document.getElementById('hud-boss-life'),
+    hudBonus: document.getElementById('hud-bonus'),
+    hudBonusIcon: document.getElementById('hud-bonus-icon'),
+    hudBonusName: document.getElementById('hud-bonus-name'),
+    hudBonusTime: document.getElementById('hud-bonus-time'),
     hudTimer: document.getElementById('hud-timer'),
     hudScore: document.getElementById('hud-score'),
     hudLives: document.getElementById('hud-lives'),
-    hudFps: document.getElementById('hud-fps'),
     menuTemps: document.getElementById('menu-timer'),
     menuScore: document.getElementById('menu-score'),
     menuVies: document.getElementById('menu-lives'),
-    menuFps: document.getElementById('menu-fps'),
-    titreSuperposition: document.getElementById('overlay-title'),
-    texteSuperposition: document.getElementById('overlay-text'),
+    debugBonusTrigger: document.getElementById('debug-bonus-trigger'),
   };
+}
+
+function estModeDebugActif() {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  return new URLSearchParams(window.location.search).get('debug') === '1';
 }
 
 function creerDependances(elements) {
-  const rendu = new RenduDom({
-    scene: elements.scene,
-    monde: elements.monde,
-    coucheEntites: elements.coucheEntites,
-  });
-
-  const hud = new ControleurHud(elements);
-
   return {
-    rendu,
-    hud,
+    rendu: new RenduDom({
+      scene: elements.scene,
+      monde: elements.monde,
+      coucheCarte: elements.coucheCarte,
+      coucheEntites: elements.coucheEntites,
+    }),
+    hud: new ControleurHud(elements),
+    superposition: new ControleurSuperposition(elements, LISTE_CARTES),
     entrees: new GestionnaireEntrees(),
     performances: new MoniteurPerformance(),
+    serviceClassement: new ServiceClassement(),
   };
 }
 
-function creerActionsJeu(etatRef) {
+function reinitialiserEtat(etatRef, idCarte) {
+  etatRef.valeur = creerEtatInitial(idCarte);
+}
+
+function creerActionsJeu(etatRef, serviceClassement) {
   return {
+    choisirCarte(idCarte) {
+      reinitialiserEtat(etatRef, idCarte);
+    },
+    demarrer() {
+      if (etatRef.valeur.phase === 'intro') {
+        etatRef.valeur.phase = 'running';
+      }
+    },
     redemarrer() {
-      etatRef.valeur = creerEtatInitial();
+      reinitialiserEtat(etatRef, etatRef.valeur.carte.id);
+    },
+    reprendre() {
+      if (etatRef.valeur.phase === 'paused') {
+        etatRef.valeur.phase = 'running';
+      }
+    },
+    continuerContextuel() {
+      if (etatRef.valeur.phase === 'paused') {
+        etatRef.valeur.phase = 'running';
+        return;
+      }
+
+      if (etatRef.valeur.phase === 'bonus-boss') {
+        reprendreApresBonusBoss(etatRef.valeur);
+      }
     },
     basculerPause() {
       if (etatRef.valeur.phase === 'running') {
@@ -59,59 +130,145 @@ function creerActionsJeu(etatRef) {
         etatRef.valeur.phase = 'running';
       }
     },
-    reprendre() {
-      if (etatRef.valeur.phase === 'paused') {
-        etatRef.valeur.phase = 'running';
-      }
-    },
     mettreEnPauseSiActif() {
       if (etatRef.valeur.phase === 'running') {
         etatRef.valeur.phase = 'paused';
       }
     },
+    revelerBonusBoss() {
+      revelerBonusBoss(etatRef.valeur);
+    },
+    declencherBonusBossTest() {
+      declencherBonusBossTest(etatRef.valeur);
+    },
+    async soumettreScore(nom) {
+      await soumettreScore(etatRef, serviceClassement, nom);
+    },
+    async pagePrecedente() {
+      await chargerPageClassement(etatRef, serviceClassement, etatRef.valeur.classement.page - 1);
+    },
+    async pageSuivante() {
+      await chargerPageClassement(etatRef, serviceClassement, etatRef.valeur.classement.page + 1);
+    },
   };
 }
 
-function brancherRaccourcisClavier(entrees, actions) {
-  entrees.surAppui('Escape', actions.basculerPause);
-  entrees.surAppui('KeyP', actions.basculerPause);
+function construireChargeUtlieScore(etat, nom) {
+  return {
+    name: nom,
+    score: etat.score,
+    timeSeconds: Math.round(etat.tempsEcouleSecondes),
+  };
+}
+
+function appliquerResumeSoumission(etat, nom, resultatApi) {
+  etat.classement.resumeSoumission = resultatApi.entry;
+  etat.classement.message = '';
+  etat.classement.erreur = '';
+  etat.classement.page = 1;
+  etat.classement.totalPages = resultatApi.totalPages;
+  etat.classement.resumeSoumission.name = nom;
+  etat.classement.resumeSoumission.percentile = resultatApi.percentile;
+}
+
+async function soumettreScore(etatRef, serviceClassement, nom) {
+  const etat = etatRef.valeur;
+
+  if (!nom) {
+    etat.classement.erreur = 'Entre un nom avant envoi.';
+    etat.classement.message = '';
+    return;
+  }
+
+  try {
+    etat.classement.chargement = true;
+    etat.classement.message = 'Envoi du score en cours...';
+    etat.classement.erreur = '';
+    const resultat = await serviceClassement.envoyerScore(construireChargeUtlieScore(etat, nom));
+    appliquerResumeSoumission(etat, nom, resultat);
+    etat.phase = 'classement';
+    await chargerPageClassement(etatRef, serviceClassement, 1);
+  } catch (erreur) {
+    etat.classement.erreur = erreur.message;
+    etat.classement.message = '';
+  } finally {
+    etat.classement.chargement = false;
+  }
+}
+
+function appliquerPageClassement(etat, resultat) {
+  etat.classement.page = resultat.page;
+  etat.classement.totalPages = resultat.totalPages;
+  etat.classement.scores = resultat.scores;
+}
+
+async function chargerPageClassement(etatRef, serviceClassement, page) {
+  const etat = etatRef.valeur;
+  const pageValide = Math.max(1, page);
+
+  try {
+    const resultat = await serviceClassement.chargerPage(pageValide, CONFIG_JEU.classement.pageSize);
+    appliquerPageClassement(etat, resultat);
+  } catch (erreur) {
+    etat.classement.erreur = erreur.message;
+  }
+}
+
+function brancherRaccourcisClavier(entrees, actions, options = {}) {
   entrees.surAppui('KeyR', actions.redemarrer);
+  if (options.modeDebugActif) {
+    entrees.surAppui('KeyB', actions.declencherBonusBossTest);
+  }
   entrees.attacher();
 }
 
-function brancherBoutons(elements, actions) {
-  elements.boutonContinuer.addEventListener('click', actions.reprendre);
+function brancherBoutons(elements, superposition, actions, options = {}) {
+  elements.boutonContinuer.addEventListener('click', actions.continuerContextuel);
   elements.boutonRecommencer.addEventListener('click', actions.redemarrer);
+  if (options.modeDebugActif && elements.debugBonusTrigger) {
+    elements.debugBonusTrigger.hidden = false;
+    elements.debugBonusTrigger.addEventListener('click', actions.declencherBonusBossTest);
+  }
+  superposition.initialiserNavigationClavier(actions);
+  superposition.initialiserBonusBoss(actions.revelerBonusBoss);
+  superposition.initialiserCartes(actions.choisirCarte, actions.demarrer);
+  superposition.initialiserFormulaire(actions.soumettreScore);
+  superposition.initialiserPagination(actions.pagePrecedente, actions.pageSuivante);
 }
 
-function creerBoucle(etatRef, entrees, performances, rendu, hud) {
+function creerBoucle(etatRef, entrees, performances, rendu, hud, superposition) {
   return new BoucleDeJeu({
     surImage({ deltaSecondes }) {
       performances.mesurer(deltaSecondes);
       mettreAJourJeu(etatRef.valeur, entrees, deltaSecondes);
       rendu.rendre(etatRef.valeur);
-      hud.rendre(etatRef.valeur, performances.instantane());
+      hud.rendre(etatRef.valeur);
+      superposition.rendre(etatRef.valeur);
     },
   });
 }
 
 function initialiserJeu() {
+  const modeDebugActif = estModeDebugActif();
   const elements = recupererElementsInterface();
-  const { rendu, hud, entrees, performances } = creerDependances(elements);
+  const { rendu, hud, superposition, entrees, performances, serviceClassement } = creerDependances(elements);
   const etatRef = { valeur: creerEtatInitial() };
-  const actions = creerActionsJeu(etatRef);
+  const actions = creerActionsJeu(etatRef, serviceClassement);
 
-  brancherRaccourcisClavier(entrees, actions);
-  brancherBoutons(elements, actions);
-  window.addEventListener('blur', actions.mettreEnPauseSiActif);
+  // Expose l'etat en debug pour les tests navigateur locaux.
+  window.__etatRef = etatRef;
+  window.__actions = actions;
+  window.__debug = { modeDebugActif };
 
-  const boucle = creerBoucle(etatRef, entrees, performances, rendu, hud);
+  brancherRaccourcisClavier(entrees, actions, { modeDebugActif });
+  brancherBoutons(elements, superposition, actions, { modeDebugActif });
+  const boucle = creerBoucle(etatRef, entrees, performances, rendu, hud, superposition);
   rendu.rendre(etatRef.valeur);
-  hud.rendre(etatRef.valeur, performances.instantane());
+  hud.rendre(etatRef.valeur);
+  superposition.rendre(etatRef.valeur);
   boucle.demarrer();
 }
 
-// Point d'entree unique: on centralise le branchement de l'UI ici.
 if (typeof document !== 'undefined') {
   initialiserJeu();
 }

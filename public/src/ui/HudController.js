@@ -1,79 +1,90 @@
-function formaterTemps(tempsRestantSecondes) {
-  const totalSecondes = Math.ceil(tempsRestantSecondes);
-  const minutes = String(Math.floor(totalSecondes / 60)).padStart(2, '0');
-  const secondes = String(totalSecondes % 60).padStart(2, '0');
-  return `${minutes}:${secondes}`;
-}
-
-const MESSAGES_PHASE = {
-  paused: {
-    titre: 'En pause',
-    texte: '`Echap` ou `P` pour continuer, `R` pour recommencer.',
-    afficherContinuer: true,
-  },
-  'game-over': {
-    titre: 'Partie terminee',
-    texte: 'Les aliens ont gagne. Appuie sur `R` pour relancer.',
-    afficherContinuer: false,
-  },
-  victory: {
-    titre: 'Victoire',
-    texte: 'La flotte est detruite. Appuie sur `R` pour rejouer.',
-    afficherContinuer: false,
-  },
-};
+import { formaterTemps } from '../utils/temps.js';
 
 export class ControleurHud {
   constructor(elements) {
     this.elements = elements;
-    this.dernierePhase = '';
+    this.dernieresValeurs = {
+      timer: '',
+      score: '',
+      vies: '',
+      bossVie: '',
+      bossRatio: -1,
+      bossVisible: false,
+      bonusCle: '',
+      bonusVisible: false,
+    };
   }
 
-  rendre(etat, performances) {
-    this.mettreAJourStatistiques(etat, performances);
-
-    if (this.dernierePhase !== etat.phase) {
-      this.dernierePhase = etat.phase;
-      this.synchroniserSuperposition(etat.phase);
-    }
-  }
-
-  mettreAJourStatistiques(etat, performances) {
+  rendre(etat) {
     const tempsFormate = formaterTemps(etat.tempsRestantSecondes);
+    const score = String(etat.score);
+    const vies = String(etat.vies);
 
-    this.elements.hudTimer.textContent = tempsFormate;
-    this.elements.hudScore.textContent = String(etat.score);
-    this.elements.hudLives.textContent = String(etat.vies);
-    this.elements.hudFps.textContent = String(performances.fps);
+    if (this.dernieresValeurs.timer !== tempsFormate) {
+      this.dernieresValeurs.timer = tempsFormate;
+      this.elements.hudTimer.textContent = tempsFormate;
+    }
 
-    this.elements.menuTemps.textContent = tempsFormate;
-    this.elements.menuScore.textContent = String(etat.score);
-    this.elements.menuVies.textContent = String(etat.vies);
-    this.elements.menuFps.textContent = String(performances.fps);
-  }
+    if (this.dernieresValeurs.score !== score) {
+      this.dernieresValeurs.score = score;
+      this.elements.hudScore.textContent = score;
+    }
 
-  synchroniserSuperposition(phase) {
-    const message = MESSAGES_PHASE[phase];
+    if (this.dernieresValeurs.vies !== vies) {
+      this.dernieresValeurs.vies = vies;
+      this.elements.hudLives.textContent = vies;
+    }
 
-    if (!message) {
-      this.masquerSuperposition();
+    this.rendreBonusActif(etat);
+
+    const bossVisible = etat.phase === 'running' && Boolean(etat.boss);
+    if (this.dernieresValeurs.bossVisible !== bossVisible) {
+      this.dernieresValeurs.bossVisible = bossVisible;
+      this.elements.hudBoss.hidden = !bossVisible;
+    }
+
+    if (!etat.boss) {
       return;
     }
 
-    this.afficherSuperposition(message);
+    const bossVie = `${etat.boss.pointsDeVie} / ${etat.boss.pointsDeVieMax}`;
+    const ratioVie = Math.max(0, etat.boss.pointsDeVie / etat.boss.pointsDeVieMax);
+
+    if (this.dernieresValeurs.bossVie !== bossVie) {
+      this.dernieresValeurs.bossVie = bossVie;
+      this.elements.hudBossLife.textContent = bossVie;
+    }
+
+    if (this.dernieresValeurs.bossRatio !== ratioVie) {
+      this.dernieresValeurs.bossRatio = ratioVie;
+      this.elements.hudBossBar.style.width = `${ratioVie * 100}%`;
+    }
   }
 
-  afficherSuperposition(message) {
-    this.elements.superposition.classList.add('visible');
-    this.elements.titreSuperposition.textContent = message.titre;
-    this.elements.texteSuperposition.textContent = message.texte;
-    this.elements.boutonContinuer.hidden = !message.afficherContinuer;
-    this.elements.boutonContinuer.disabled = !message.afficherContinuer;
-  }
+  rendreBonusActif(etat) {
+    const bonusVisible = etat.phase === 'running' && Boolean(etat.bonusActif?.bonusId);
 
-  masquerSuperposition() {
-    this.elements.superposition.classList.remove('visible');
-    this.elements.boutonContinuer.hidden = false;
-    this.elements.boutonContinuer.disabled = false;
+    if (this.dernieresValeurs.bonusVisible !== bonusVisible) {
+      this.dernieresValeurs.bonusVisible = bonusVisible;
+      this.elements.hudBonus.hidden = !bonusVisible;
+    }
+
+    if (!bonusVisible) {
+      this.dernieresValeurs.bonusCle = '';
+      return;
+    }
+
+    const tempsRestant = Math.ceil(etat.bonusActif.tempsRestantSecondes);
+    const multiplicateur = etat.bonusActif.occurrencesGagnantes >= 3 ? 'x3' : 'x2';
+    const cleBonus = `${etat.bonusActif.bonusId}|${tempsRestant}|${multiplicateur}`;
+
+    if (this.dernieresValeurs.bonusCle === cleBonus) {
+      return;
+    }
+
+    this.dernieresValeurs.bonusCle = cleBonus;
+    this.elements.hudBonusIcon.dataset.bonusId = etat.bonusActif.bonusId;
+    this.elements.hudBonusName.textContent = `${etat.bonusActif.titre} ${multiplicateur}`;
+    this.elements.hudBonusTime.textContent = `${tempsRestant}s`;
   }
 }

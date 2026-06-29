@@ -12,6 +12,12 @@ npm start
 
 Le serveur local expose ensuite le jeu sur `http://localhost:3000`.
 
+Pour afficher les outils de test locaux dans le navigateur:
+
+```bash
+http://localhost:3000/?debug=1
+```
+
 ## Controles
 
 - `Fleche gauche` ou `A` : deplacer le vaisseau vers la gauche
@@ -19,6 +25,14 @@ Le serveur local expose ensuite le jeu sur `http://localhost:3000`.
 - `Espace` : tirer
 - `Echap` ou `P` : mettre en pause / reprendre
 - `R` : recommencer une partie
+
+## Mode debug local
+
+Avec `?debug=1` dans l'URL:
+
+- un bouton `Tester bonus boss` apparait en haut a gauche
+- la touche `B` declenche directement la machine a sous du boss
+- `window.__actions.declencherBonusBossTest()` est disponible dans la console
 
 ## Structure
 
