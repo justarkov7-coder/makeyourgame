@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="32" viewBox="0 0 192 32">
+  <defs>
+    <linearGradient id="void" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#102246"/>
+      <stop offset="1" stop-color="#040914"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#284068"/>
+      <stop offset="1" stop-color="#15233e"/>
+    </linearGradient>
+    <linearGradient id="runway" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#214a39"/>
+      <stop offset="1" stop-color="#133128"/>
+    </linearGradient>
+    <linearGradient id="warning" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8d2b39"/>
+      <stop offset="1" stop-color="#4b1620"/>
+    </linearGradient>
+    <linearGradient id="reactor" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#23496e"/>
+      <stop offset="1" stop-color="#15233c"/>
+    </linearGradient>
+    <linearGradient id="beacon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6b4b19"/>
+      <stop offset="1" stop-color="#33220b"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(0 0)">
+    <rect width="32" height="32" fill="url(#void)"/>
+    <circle cx="8" cy="7" r="1.2" fill="#dfefff"/>
+    <circle cx="24" cy="14" r="1" fill="#6fffb0"/>
+    <circle cx="17" cy="24" r="1" fill="#ffd166"/>
+  </g>
+
+  <g transform="translate(32 0)">
+    <rect width="32" height="32" fill="url(#metal)"/>
+    <path d="M0 6h32M0 16h32M0 26h32M6 0v32M16 0v32M26 0v32" stroke="#4d6991" stroke-width="1"/>
+    <path d="M3 3h26v26H3z" fill="none" stroke="#8bb0da" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(64 0)">
+    <rect width="32" height="32" fill="url(#runway)"/>
+    <path d="M0 24h32" stroke="#7deeb2" stroke-width="2"/>
+    <path d="M0 28h32" stroke="#1b6c52" stroke-width="4"/>
+    <path d="M5 6h22v10H5z" fill="rgba(255,255,255,0.05)" stroke="#7deeb2" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(96 0)">
+    <rect width="32" height="32" fill="url(#warning)"/>
+    <path d="M0 32L32 0M-8 24L24 -8M8 40L40 8" stroke="#ffd166" stroke-width="5"/>
+  </g>
+
+  <g transform="translate(128 0)">
+    <rect width="32" height="32" fill="url(#reactor)"/>
+    <circle cx="16" cy="16" r="9" fill="#0a1527" stroke="#44b8ff" stroke-width="2"/>
+    <circle cx="16" cy="16" r="4" fill="#9efcff"/>
+    <path d="M16 2v6M16 24v6M2 16h6M24 16h6" stroke="#44b8ff" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(160 0)">
+    <rect width="32" height="32" fill="url(#beacon)"/>
+    <path d="M16 4l9 10-9 14-9-14z" fill="#ffd166" opacity=".3"/>
+    <circle cx="16" cy="14" r="5" fill="#ffd166"/>
+    <circle cx="16" cy="14" r="2" fill="#fff5d6"/>
+    <path d="M6 28h20" stroke="#f7c954" stroke-width="2"/>
+  </g>
+</svg>

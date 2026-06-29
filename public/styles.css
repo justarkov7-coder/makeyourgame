@@ -148,6 +148,28 @@ input {
   color: #f2f2f2;
 }
 
+.debug-bonus-trigger {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 6;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d0d0d0;
+  background: rgba(10, 10, 10, 0.94);
+  color: #ffffff;
+  pointer-events: auto;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
+
+.debug-bonus-trigger:hover {
+  border-color: #ffffff;
+  background: #f1f1f1;
+  color: #000000;
+}
+
 .hud-anchor {
   position: absolute;
 }
@@ -234,6 +256,63 @@ input {
       #f0f0f0 0 8px,
       #bdbdbd 8px 16px
     );
+}
+
+.bonus-hud {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  width: min(300px, 42vw);
+  padding: 8px 10px;
+  border: 2px solid #f0d36d;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 52%),
+    rgba(18, 7, 6, 0.88);
+  color: #fff4b8;
+  pointer-events: none;
+}
+
+.bonus-hud-icon {
+  width: 42px;
+  height: 42px;
+  align-self: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 42px 42px;
+  image-rendering: pixelated;
+}
+
+.bonus-hud-icon[data-bonus-id='rapid-fire'] {
+  background-image: url('./assets/bonus/rapid-fire.svg');
+}
+
+.bonus-hud-icon[data-bonus-id='hull-up'] {
+  background-image: url('./assets/bonus/hull-up.svg');
+}
+
+.bonus-hud-icon[data-bonus-id='thruster-up'] {
+  background-image: url('./assets/bonus/thruster-up.svg');
+}
+
+.bonus-hud-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  text-align: right;
+}
+
+.bonus-hud-copy strong {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bonus-hud-copy span:last-child {
+  color: #ffd95e;
+  font-size: 1rem;
 }
 
 .hud-fps-hidden {
@@ -521,6 +600,45 @@ input {
   color: #ffe1e1;
 }
 
+.overlay[data-phase='bonus-boss'] .overlay-card {
+  width: min(100%, 860px);
+  padding-top: 18px;
+  border-color: #f8f1d2;
+  outline-color: #8d1b16;
+  background:
+    linear-gradient(180deg, #181818 0 42px, transparent 42px),
+    linear-gradient(180deg, #4b0f12 0%, #25080b 56%, #080405 100%);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 236, 154, 0.08),
+    0 0 0 4px rgba(0, 0, 0, 0.48);
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-card::before {
+  display: none;
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-tag,
+.overlay[data-phase='bonus-boss'] .overlay-text {
+  display: none;
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-card h2 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-family: "Impact", "Copperplate", fantasy;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-shadow:
+    3px 0 #57100d,
+    0 3px #57100d,
+    0 0 10px rgba(255, 214, 98, 0.48);
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-actions {
+  display: none;
+}
+
 .overlay-tag,
 .overlay-card h2,
 .overlay-text {
@@ -551,6 +669,7 @@ input {
 }
 
 .map-panel,
+.boss-bonus-panel,
 .overlay-scoreboard,
 .score-form,
 .ranking-panel {
@@ -584,6 +703,366 @@ input {
   display: grid;
   gap: 6px;
   margin-top: 8px;
+}
+
+.boss-bonus-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.boss-bonus-cabinet {
+  display: grid;
+  gap: 0;
+  border: 4px solid #101010;
+  outline: 2px solid #f4d06a;
+  background: #130405;
+  box-shadow:
+    inset 0 0 0 4px #6f1412,
+    0 10px 0 rgba(0, 0, 0, 0.36);
+}
+
+.boss-bonus-marquee {
+  display: grid;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-bottom: 4px solid #101010;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #ffd95e 0 14px,
+      #f6f0c2 14px 20px,
+      #bd2a20 20px 34px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 42%),
+    #cf2f22;
+  color: #fff8d8;
+  text-align: center;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22);
+}
+
+.boss-bonus-marquee strong {
+  display: none;
+  font-size: 1.24rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow:
+    2px 0 #57100d,
+    0 2px #57100d;
+}
+
+.boss-bonus-marquee span {
+  display: none;
+  color: #fff0a0;
+  font-size: 0.84rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.boss-bonus-machine {
+  position: relative;
+  padding: 22px 64px 20px 22px;
+  border: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08), transparent 18% 82%, rgba(0, 0, 0, 0.22)),
+    #8f1b18;
+  box-shadow: inset 0 0 0 4px rgba(255, 225, 123, 0.12);
+}
+
+.boss-bonus-payline {
+  position: absolute;
+  left: 34px;
+  right: 78px;
+  top: 106px;
+  z-index: 4;
+  height: 6px;
+  background:
+    linear-gradient(90deg, transparent 0, #ffffff 10%, #ffe45e 50%, #ffffff 90%, transparent 100%);
+  box-shadow:
+    0 0 0 2px rgba(70, 11, 9, 0.85),
+    0 0 14px rgba(255, 226, 91, 0.84);
+  pointer-events: none;
+}
+
+.boss-bonus-reels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  border: 4px solid #111111;
+  background: #111111;
+  box-shadow:
+    inset 0 0 0 2px #f2d16b,
+    0 4px 0 rgba(0, 0, 0, 0.42);
+}
+
+.boss-bonus-reel {
+  position: relative;
+  min-height: 202px;
+  display: grid;
+  grid-template-rows: 156px auto;
+  gap: 8px;
+  padding: 10px;
+  border: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 32%),
+    #33100c;
+  text-align: center;
+  overflow: hidden;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.boss-bonus-reel:nth-child(2) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), transparent 32%),
+    #47130f;
+}
+
+.boss-bonus-reel:nth-child(2) .boss-bonus-window {
+  border-color: #f8d45f;
+  box-shadow:
+    inset 0 0 0 4px rgba(95, 19, 13, 0.2),
+    inset 0 18px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -18px 0 rgba(0, 0, 0, 0.08),
+    0 0 0 2px rgba(255, 238, 156, 0.45);
+}
+
+.boss-bonus-reel::before,
+.boss-bonus-reel::after {
+  display: none;
+}
+
+.boss-bonus-window {
+  position: relative;
+  display: block;
+  height: 156px;
+  overflow: hidden;
+  border: 4px solid #101010;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.06) 0 4px,
+      transparent 4px 8px
+    ),
+    #f6ead1;
+  box-shadow:
+    inset 0 0 0 4px rgba(95, 19, 13, 0.2),
+    inset 0 18px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -18px 0 rgba(0, 0, 0, 0.08);
+}
+
+.boss-bonus-window::before,
+.boss-bonus-window::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 46px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.boss-bonus-window::before {
+  top: 0;
+  background: linear-gradient(180deg, rgba(37, 8, 5, 0.38), rgba(37, 8, 5, 0));
+}
+
+.boss-bonus-window::after {
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(37, 8, 5, 0.38), rgba(37, 8, 5, 0));
+}
+
+.boss-bonus-window-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 30% 70%, rgba(112, 24, 14, 0.08)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), transparent 50%);
+  z-index: 2;
+}
+
+.boss-bonus-track {
+  --reel-step: 124px;
+  --reel-offset: 16px;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-auto-rows: var(--reel-step);
+  transform: translateY(calc(var(--reel-step) * -1 + var(--reel-offset)));
+}
+
+.boss-bonus-icon-slot {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 6px;
+  min-height: var(--reel-step);
+  padding: 10px 0;
+}
+
+.boss-bonus-icon {
+  width: 82px;
+  height: 82px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 82px 82px;
+  image-rendering: pixelated;
+  filter:
+    drop-shadow(3px 0 0 rgba(255, 255, 255, 0.16))
+    drop-shadow(0 3px 0 rgba(74, 14, 9, 0.26));
+}
+
+.boss-bonus-icon-slot[data-bonus-id='rapid-fire'] .boss-bonus-icon {
+  background-image: url('./assets/bonus/rapid-fire.svg');
+}
+
+.boss-bonus-icon-slot[data-bonus-id='hull-up'] .boss-bonus-icon {
+  background-image: url('./assets/bonus/hull-up.svg');
+}
+
+.boss-bonus-icon-slot[data-bonus-id='thruster-up'] .boss-bonus-icon {
+  background-image: url('./assets/bonus/thruster-up.svg');
+}
+
+.boss-bonus-icon-slot em {
+  display: block;
+  min-width: 82px;
+  padding: 2px 4px;
+  border: 2px solid rgba(99, 19, 10, 0.18);
+  background: rgba(255, 255, 255, 0.28);
+  color: #481009;
+  font-style: normal;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.boss-bonus-reel > strong {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 5px 4px;
+  border: 2px solid #101010;
+  background: #f0d36d;
+  color: #1b0805;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.boss-bonus-reel > [data-bonus-description] {
+  display: none;
+}
+
+.boss-bonus-reel.is-spinning {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 28%),
+    #4d1510;
+  box-shadow: inset 0 0 0 2px rgba(255, 227, 117, 0.2);
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-window-glow {
+  animation: slot-scan 220ms linear infinite;
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-track {
+  animation: slot-track-spin 165ms linear infinite;
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-icon {
+  filter:
+    blur(0.8px)
+    drop-shadow(0 4px 0 rgba(74, 14, 9, 0.16));
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-icon-slot em {
+  opacity: 0.72;
+}
+
+.boss-bonus-reel[data-bonus-id='rapid-fire'] {
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 214, 102, 0.18),
+    0 0 0 1px rgba(255, 214, 102, 0.18);
+}
+
+.boss-bonus-reel[data-bonus-id='hull-up'] {
+  box-shadow:
+    inset 0 0 0 2px rgba(152, 255, 191, 0.16),
+    0 0 0 1px rgba(152, 255, 191, 0.16);
+}
+
+.boss-bonus-reel[data-bonus-id='thruster-up'] {
+  box-shadow:
+    inset 0 0 0 2px rgba(122, 220, 255, 0.18),
+    0 0 0 1px rgba(122, 220, 255, 0.18);
+}
+
+.boss-bonus-lever {
+  position: absolute;
+  right: 14px;
+  top: 24px;
+  bottom: 24px;
+  width: 34px;
+  display: grid;
+  place-items: center;
+}
+
+.boss-bonus-lever-stem {
+  width: 8px;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fbe8a7, #b57c2d 42%, #6d3f12 100%);
+}
+
+.boss-bonus-lever-ball {
+  position: absolute;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff0c9;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 35% 30%, #fff6d6, #ff8f48 58%, #8c1e0d 100%);
+  box-shadow: 0 0 14px rgba(255, 166, 64, 0.42);
+}
+
+.boss-bonus-result {
+  margin: 0;
+  padding: 12px;
+  border: 4px solid #101010;
+  outline: 2px solid #f0d36d;
+  background: #120706;
+  color: #fff4b8;
+  font-size: 0.94rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+@keyframes slot-track-spin {
+  0% {
+    transform: translateY(var(--reel-offset));
+  }
+
+  100% {
+    transform: translateY(calc(var(--reel-step) * -1 + var(--reel-offset)));
+  }
+}
+
+@keyframes slot-scan {
+  0% {
+    transform: translateY(-20%);
+    opacity: 0.32;
+  }
+
+  100% {
+    transform: translateY(20%);
+    opacity: 0.68;
+  }
 }
 
 .map-option {
@@ -761,6 +1240,14 @@ input {
 }
 
 @media (max-width: 680px) {
+  .debug-bonus-trigger {
+    left: 10px;
+    top: 10px;
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 0.82rem;
+  }
+
   .hud-top-right {
     top: 10px;
     right: 10px;
@@ -788,6 +1275,72 @@ input {
   .score-fields,
   .ranking-row {
     grid-template-columns: 1fr;
+  }
+
+  .boss-bonus-marquee strong {
+    font-size: 1rem;
+  }
+
+  .boss-bonus-marquee span {
+    font-size: 0.72rem;
+  }
+
+  .boss-bonus-machine {
+    padding: 12px;
+  }
+
+  .boss-bonus-reels {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .boss-bonus-payline {
+    left: 20px;
+    right: 20px;
+    top: 92px;
+    bottom: auto;
+    height: 4px;
+  }
+
+  .boss-bonus-reel {
+    min-height: 164px;
+    grid-template-rows: 122px auto;
+    gap: 6px;
+    padding: 6px;
+  }
+
+  .boss-bonus-window {
+    height: 122px;
+  }
+
+  .boss-bonus-track {
+    --reel-step: 96px;
+    --reel-offset: 13px;
+  }
+
+  .boss-bonus-icon-slot {
+    gap: 3px;
+    padding: 6px 0;
+  }
+
+  .boss-bonus-icon {
+    width: 62px;
+    height: 62px;
+    background-size: 62px 62px;
+  }
+
+  .boss-bonus-icon-slot em {
+    min-width: 58px;
+    font-size: 0.58rem;
+  }
+
+  .boss-bonus-reel > strong {
+    min-height: 30px;
+    font-size: 0.64rem;
+  }
+
+  .boss-bonus-lever {
+    display: none;
   }
 
   .ranking-head {
