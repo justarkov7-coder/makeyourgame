@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "api": "API_PORT=3001 go run api/server.go",
+    "api": "API_PORT=3001 GO111MODULE=off go run ./api",
     "check": "node --check index.js"
   },
   "private": true

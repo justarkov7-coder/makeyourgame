@@ -1,0 +1,79 @@
+
+.game-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: top left;
+}
+
+.tile-layer {
+  display: none;
+}
+
+.stars {
+  display: none;
+}
+
+.stars::before,
+.stars::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stars::before {
+  background:
+    linear-gradient(180deg, transparent 0 74%, rgba(116, 240, 210, 0.05) 74% 75%, transparent 75%),
+    linear-gradient(90deg, transparent 0 9%, rgba(255, 200, 87, 0.04) 9% 9.3%, transparent 9.3%);
+  opacity: 0.16;
+}
+
+.stars::after {
+  background:
+    radial-gradient(circle at 10% 90%, rgba(116, 240, 210, 0.06), transparent 20%),
+    radial-gradient(circle at 92% 12%, rgba(255, 200, 87, 0.04), transparent 18%);
+}
+
+.entity-layer {
+  contain: layout paint style;
+}
+
+.entity {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate3d(0, 0, 0);
+}
+
+.sprite {
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+
+.sprite-player {
+  background-image: url('../assets/sprites/spray.png');
+}
+
+.sprite-player.is-shielded {
+  opacity: 0.72;
+  filter: brightness(1.1);
+}
+
+.sprite-bio {
+  background-image: url('../assets/sprites/bio.png');
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.sprite-bio[data-integrite='3'] {
+  opacity: 0.84;
+  filter: saturate(0.92);
+}
+
+.sprite-bio[data-integrite='2'] {
+  opacity: 0.66;
+  filter: saturate(0.78);
+}

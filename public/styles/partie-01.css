@@ -1,0 +1,80 @@
+:root {
+  --bg-1: #05070d;
+  --bg-2: #0e1827;
+  --bg-3: #16273a;
+  --panel: rgba(7, 12, 19, 0.72);
+  --panel-strong: rgba(8, 15, 24, 0.9);
+  --panel-border: rgba(132, 203, 255, 0.22);
+  --ink: #edf4ff;
+  --muted: #90a6bb;
+  --accent: #74f0d2;
+  --accent-2: #ffc857;
+  --danger: #ff6b7c;
+  --shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+  color: var(--ink);
+  font-family: "Gill Sans", "Trebuchet MS", sans-serif;
+  background: #000;
+}
+
+body::before,
+body::after {
+  display: none;
+}
+
+button,
+input,
+strong,
+h1,
+h2 {
+  font-family: "Copperplate", "Impact", fantasy;
+  letter-spacing: 0.03em;
+}
+
+button,
+input {
+  font-size: 0.92rem;
+}
+
+button {
+  border: 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+input {
+  color: var(--ink);
+}
+
+.app-shell {
+  height: 100dvh;
+}
+
+.game-panel {
+  position: relative;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.hud-chip .label,
+.boss-hud .label,
+.overlay-scoreboard span,

@@ -1,249 +1,42 @@
-<!doctype html>
-<html lang="fr">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Space Invaders | Tactical Sprite Mode</title>
-    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <main class="app-shell">
-      <section class="game-panel" aria-label="Jeu Space Invaders">
-        <section class="game-frame">
-          <div
-            id="game-scene"
-            class="game-scene"
-            role="application"
-            aria-label="Zone de jeu"
-          >
-            <div class="hud-overlay" aria-label="Statistiques du jeu">
-              <button id="debug-bonus-trigger" class="debug-bonus-trigger" type="button" hidden>
-                Tester bonus boss
-              </button>
-
-              <div class="hud-anchor hud-top-right">
-                <div class="hud-stack">
-                  <div class="hud-chip">
-                    <span class="label">Score</span>
-                    <strong id="hud-score">0</strong>
-                  </div>
-
-                  <div id="hud-boss" class="boss-hud" hidden>
-                    <div class="boss-hud-head">
-                      <span class="label">Boss</span>
-                      <strong id="hud-boss-life">140 / 140</strong>
-                    </div>
-                    <div class="boss-hud-bar">
-                      <div id="hud-boss-bar" class="boss-hud-bar-fill"></div>
-                    </div>
-                  </div>
-
-                  <div id="hud-bonus" class="bonus-hud" hidden>
-                    <div class="bonus-hud-icon" id="hud-bonus-icon" data-bonus-id="" aria-hidden="true"></div>
-                    <div class="bonus-hud-copy">
-                      <span class="label">Bonus</span>
-                      <strong id="hud-bonus-name">Cadence turbo</strong>
-                      <span id="hud-bonus-time">30s</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="hud-anchor hud-bottom-left">
-                <div class="hud-chip">
-                  <span class="label">Vies</span>
-                  <strong id="hud-lives">3</strong>
-                </div>
-              </div>
-
-              <div class="hud-anchor hud-bottom-right">
-                <div class="hud-chip">
-                  <span class="label">Temps</span>
-                  <strong id="hud-timer">02:00</strong>
-                </div>
-              </div>
-
-              <strong id="hud-fps" class="hud-fps-hidden">60</strong>
-            </div>
-
-            <div id="game-world" class="game-world">
-              <div id="tile-layer" class="tile-layer"></div>
-              <div class="stars"></div>
-              <div id="entity-layer" class="entity-layer"></div>
-            </div>
-
-            <aside id="overlay" class="overlay" aria-live="polite">
-              <div class="overlay-card">
-                <p id="overlay-tag" class="overlay-tag">Mode histoire</p>
-                <h2 id="overlay-title">Briefing orbital</h2>
-                <p id="overlay-text" class="overlay-text"></p>
-
-                <section id="map-panel" class="map-panel" hidden>
-                  <p class="panel-title">Choisir une carte</p>
-                  <div id="map-options" class="map-options"></div>
-                </section>
-
-                <div id="resume-panel" class="overlay-scoreboard" aria-label="Resume de partie">
-                  <div>
-                    <span>Temps</span>
-                    <strong id="menu-timer">02:00</strong>
-                  </div>
-                  <div>
-                    <span>Score</span>
-                    <strong id="menu-score">0</strong>
-                  </div>
-                  <div>
-                    <span>Vies</span>
-                    <strong id="menu-lives">3</strong>
-                  </div>
-                </div>
-
-                <section id="boss-bonus-panel" class="boss-bonus-panel" hidden>
-                  <p class="panel-title">Machine a sous du boss</p>
-                  <div class="boss-bonus-cabinet">
-                    <div class="boss-bonus-marquee">
-                      <strong>Boss Jackpot</strong>
-                      <span>3 rouleaux - bonus aleatoire</span>
-                    </div>
-
-                    <div class="boss-bonus-machine">
-                      <div class="boss-bonus-payline" aria-hidden="true"></div>
-                      <div class="boss-bonus-reels" aria-label="Bonus aleatoire en cours">
-                        <article id="boss-bonus-reel-1" class="boss-bonus-reel" data-bonus-id="">
-                          <span class="boss-bonus-window">
-                            <span class="boss-bonus-window-glow" aria-hidden="true"></span>
-                            <span class="boss-bonus-track" data-bonus-track>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>LIFE</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>BLAST</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>SPEED</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>LIFE</em>
-                              </span>
-                            </span>
-                          </span>
-                          <strong data-bonus-title>Cadence turbo</strong>
-                          <span data-bonus-description>Le delai entre deux tirs baisse pour le reste de la partie.</span>
-                        </article>
-                        <article id="boss-bonus-reel-2" class="boss-bonus-reel" data-bonus-id="">
-                          <span class="boss-bonus-window">
-                            <span class="boss-bonus-window-glow" aria-hidden="true"></span>
-                            <span class="boss-bonus-track" data-bonus-track>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>BLAST</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>LIFE</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>SPEED</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>BLAST</em>
-                              </span>
-                            </span>
-                          </span>
-                          <strong data-bonus-title>Coque renforcee</strong>
-                          <span data-bonus-description>Une vie supplementaire est ajoutee immediatement.</span>
-                        </article>
-                        <article id="boss-bonus-reel-3" class="boss-bonus-reel" data-bonus-id="">
-                          <span class="boss-bonus-window">
-                            <span class="boss-bonus-window-glow" aria-hidden="true"></span>
-                            <span class="boss-bonus-track" data-bonus-track>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>BLAST</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>SPEED</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>LIFE</em>
-                              </span>
-                              <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
-                                <span class="boss-bonus-icon" aria-hidden="true"></span>
-                                <em data-bonus-symbol>BLAST</em>
-                              </span>
-                            </span>
-                          </span>
-                          <strong data-bonus-title>Reacteurs boostes</strong>
-                          <span data-bonus-description>La vitesse de deplacement du joueur augmente durablement.</span>
-                        </article>
-                      </div>
-
-                      <div class="boss-bonus-lever" aria-hidden="true">
-                        <span class="boss-bonus-lever-stem"></span>
-                        <span class="boss-bonus-lever-ball"></span>
-                      </div>
-                    </div>
-                  </div>
-                  <p id="boss-bonus-result" class="boss-bonus-result">Tirage en cours...</p>
-                </section>
-
-                <form id="score-form" class="score-form" hidden>
-                  <label class="panel-title" for="player-name">Nom du pilote</label>
-                  <div class="score-fields">
-                    <input
-                      id="player-name"
-                      name="player-name"
-                      type="text"
-                      maxlength="18"
-                      autocomplete="nickname"
-                      placeholder="Capitaine Nova"
-                      required
-                    />
-                    <button id="submit-score-button" type="submit">Envoyer</button>
-                  </div>
-                  <p id="score-form-message" class="score-form-message"></p>
-                </form>
-
-                <section id="ranking-panel" class="ranking-panel" hidden>
-                  <p id="ranking-feedback" class="ranking-feedback"></p>
-
-                  <div class="ranking-table" role="table" aria-label="Classement">
-                    <div class="ranking-row ranking-head" role="row">
-                      <span>Rang</span>
-                      <span>Nom</span>
-                      <span>Score</span>
-                      <span>Temps</span>
-                    </div>
-                    <div id="ranking-rows" class="ranking-body"></div>
-                  </div>
-
-                  <div class="ranking-pagination">
-                    <button id="page-prev" type="button">Page precedente</button>
-                    <strong id="page-indicator">Page 1/1</strong>
-                    <button id="page-next" type="button">Page suivante</button>
-                  </div>
-                </section>
-
-                <div class="overlay-actions">
-                  <button id="continue-button" type="button" hidden>Continuer</button>
-                  <button id="restart-button" type="button" hidden>Recommencer</button>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
-      </section>
-    </main>
-
-    <script type="module" src="./src/main.js"></script>
-  </body>
-</html>
+<!doctype html> <html lang="fr"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width, initial-scale=1" /> <title>Space Invaders | Tactical Sprite Mode</title>
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" /> <link rel="stylesheet" href="./styles.css" /> </head> <body> <main class="app-shell"> <section class="game-panel" aria-label="Jeu Space Invaders">
+<section class="game-frame"> <div id="game-scene" class="game-scene" role="application" aria-label="Zone de jeu" > <div class="hud-overlay" aria-label="Statistiques du jeu">
+<button id="debug-bonus-trigger" class="debug-bonus-trigger" type="button" hidden> Tester bonus boss </button> <div class="hud-anchor hud-top-right"> <div class="hud-stack"> <div class="hud-chip">
+<span class="label">Score</span> <strong id="hud-score">0</strong> </div> <div id="hud-boss" class="boss-hud" hidden> <div class="boss-hud-head"> <span class="label">Boss</span>
+<strong id="hud-boss-life">140 / 140</strong> </div> <div class="boss-hud-bar"> <div id="hud-boss-bar" class="boss-hud-bar-fill"></div> </div> </div> <div id="hud-bonus" class="bonus-hud" hidden>
+<div class="bonus-hud-icon" id="hud-bonus-icon" data-bonus-id="" aria-hidden="true"></div> <div class="bonus-hud-copy"> <span class="label">Bonus</span> <strong id="hud-bonus-name">Cadence turbo</strong>
+<span id="hud-bonus-time">30s</span> </div> </div> </div> </div> <div class="hud-anchor hud-bottom-left"> <div class="hud-chip"> <span class="label">Vies</span> <strong id="hud-lives">3</strong> </div> </div>
+<div class="hud-anchor hud-bottom-right"> <div class="hud-chip"> <span class="label">Temps</span> <strong id="hud-timer">02:00</strong> </div> </div> <strong id="hud-fps" class="hud-fps-hidden">60</strong> </div>
+<div id="game-world" class="game-world"> <div id="tile-layer" class="tile-layer"></div> <div class="stars"></div> <div id="entity-layer" class="entity-layer"></div> </div>
+<aside id="overlay" class="overlay" aria-live="polite"> <div class="overlay-card"> <p id="overlay-tag" class="overlay-tag">Mode histoire</p> <h2 id="overlay-title">Briefing orbital</h2>
+<p id="overlay-text" class="overlay-text"></p> <section id="map-panel" class="map-panel" hidden> <p class="panel-title">Choisir une carte</p> <div id="map-options" class="map-options"></div> </section>
+<div id="resume-panel" class="overlay-scoreboard" aria-label="Resume de partie"> <div> <span>Temps</span> <strong id="menu-timer">02:00</strong> </div> <div> <span>Score</span> <strong id="menu-score">0</strong> </div>
+<div> <span>Vies</span> <strong id="menu-lives">3</strong> </div> </div> <section id="boss-bonus-panel" class="boss-bonus-panel" hidden> <p class="panel-title">Machine a sous du boss</p> <div class="boss-bonus-cabinet">
+<div class="boss-bonus-marquee"> <strong>Boss Jackpot</strong> <span>3 rouleaux - bonus aleatoire</span> </div> <div class="boss-bonus-machine"> <div class="boss-bonus-payline" aria-hidden="true"></div>
+<div class="boss-bonus-reels" aria-label="Bonus aleatoire en cours"> <article id="boss-bonus-reel-1" class="boss-bonus-reel" data-bonus-id=""> <span class="boss-bonus-window">
+<span class="boss-bonus-window-glow" aria-hidden="true"></span> <span class="boss-bonus-track" data-bonus-track> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>LIFE</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>BLAST</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>SPEED</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>LIFE</em> </span> </span> </span> <strong data-bonus-title>Cadence turbo</strong>
+<span data-bonus-description>Le delai entre deux tirs baisse pour le reste de la partie.</span> </article> <article id="boss-bonus-reel-2" class="boss-bonus-reel" data-bonus-id=""> <span class="boss-bonus-window">
+<span class="boss-bonus-window-glow" aria-hidden="true"></span> <span class="boss-bonus-track" data-bonus-track> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>BLAST</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>LIFE</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>SPEED</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>BLAST</em> </span> </span> </span> <strong data-bonus-title>Coque renforcee</strong>
+<span data-bonus-description>Une vie supplementaire est ajoutee immediatement.</span> </article> <article id="boss-bonus-reel-3" class="boss-bonus-reel" data-bonus-id=""> <span class="boss-bonus-window">
+<span class="boss-bonus-window-glow" aria-hidden="true"></span> <span class="boss-bonus-track" data-bonus-track> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>BLAST</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="thruster-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>SPEED</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="hull-up">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>LIFE</em> </span> <span class="boss-bonus-icon-slot" data-bonus-slot data-bonus-id="rapid-fire">
+<span class="boss-bonus-icon" aria-hidden="true"></span> <em data-bonus-symbol>BLAST</em> </span> </span> </span> <strong data-bonus-title>Reacteurs boostes</strong>
+<span data-bonus-description>La vitesse de deplacement du joueur augmente durablement.</span> </article> </div> <div class="boss-bonus-lever" aria-hidden="true"> <span class="boss-bonus-lever-stem"></span>
+<span class="boss-bonus-lever-ball"></span> </div> </div> </div> <p id="boss-bonus-result" class="boss-bonus-result">Tirage en cours...</p> </section> <form id="score-form" class="score-form" hidden>
+<label class="panel-title" for="player-name">Nom du pilote</label> <div class="score-fields"> <input id="player-name" name="player-name" type="text" maxlength="18" autocomplete="nickname" placeholder="Capitaine Nova"
+required /> <button id="submit-score-button" type="submit">Envoyer</button> </div> <p id="score-form-message" class="score-form-message"></p> </form> <section id="ranking-panel" class="ranking-panel" hidden>
+<p id="ranking-feedback" class="ranking-feedback"></p> <div class="ranking-table" role="table" aria-label="Classement"> <div class="ranking-row ranking-head" role="row"> <span>Rang</span> <span>Nom</span>
+<span>Score</span> <span>Temps</span> </div> <div id="ranking-rows" class="ranking-body"></div> </div> <div class="ranking-pagination"> <button id="page-prev" type="button">Page precedente</button>
+<strong id="page-indicator">Page 1/1</strong> <button id="page-next" type="button">Page suivante</button> </div> </section> <div class="overlay-actions">
+<button id="continue-button" type="button" hidden>Continuer</button> <button id="restart-button" type="button" hidden>Recommencer</button> </div> </div> </aside> </div> </section> </section> </main>
+<script type="module" src="./src/main.js"></script> </body> </html>

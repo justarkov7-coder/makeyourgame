@@ -1,3 +1,9 @@
+import {
+  LIGNES_CARTE_HANGAR,
+  LIGNES_CARTE_RUINES,
+  LIGNES_CARTE_SOLAIRE,
+} from './cartesDonnees.js';
+
 const LEGENDE_TUILES = {
   '.': 0,
   '#': 1,
@@ -7,14 +13,27 @@ const LEGENDE_TUILES = {
   '+': 5,
 };
 
+// convertirLignesEnTuiles explique une etape dediee du module.
 function convertirLignesEnTuiles(lignes) {
-  return lignes.flatMap((ligne) => [...ligne].map((symbole) => LEGENDE_TUILES[symbole] ?? 0));
+  const tuiles = [];
+
+  for (const ligne of lignes) {
+    for (const symbole of ligne) {
+      tuiles.push(LEGENDE_TUILES[symbole] ?? 0);
+    }
+  }
+
+  return tuiles;
 }
 
+// creerGetTile explique une etape dediee du module.
 function creerGetTile(tuiles, colonnes) {
-  return (colonne, ligne) => tuiles[ligne * colonnes + colonne];
+  return function lireTuile(colonne, ligne) {
+    return tuiles[ligne * colonnes + colonne];
+  };
 }
 
+// creerCarte explique une etape dediee du module.
 function creerCarte(id, nom, resume, lignesBrutes) {
   const colonnes = lignesBrutes[0].length;
   const lignes = lignesBrutes.length;
@@ -37,79 +56,21 @@ function creerCarte(id, nom, resume, lignesBrutes) {
   };
 }
 
-const CARTE_HANGAR = creerCarte('hangar', 'Hangar orbital', 'Piste stable et lignes claires.', [
-  '..............................',
-  '..............................',
-  '..............................',
-  '..............................',
-  '............****..............',
-  '..............................',
-  '..............................',
-  '..............................',
-  '..............................',
-  '..............................',
-  '..............................',
-  '......#..#............#..#....',
-  '.....##^^##..........##^^##...',
-  '....###^^###........###^^###..',
-  '##############################',
-  '==============================',
-  '==+====+====+====+====+====+==',
-  '==============================',
-  '##############################',
-  '==============================',
-]);
+const CARTE_HANGAR = creerCarte('hangar', 'Hangar orbital', 'Piste stable et lignes claires.', LIGNES_CARTE_HANGAR);
 
-const CARTE_RUINES = creerCarte('ruines', 'Ruines plasma', 'Blocs reacteurs et zones denses.', [
-  '..............................',
-  '..............................',
-  '..............................',
-  '.................*............',
-  '..............................',
-  '..............................',
-  '...........*..................',
-  '..............................',
-  '........#..............#......',
-  '.......###............###.....',
-  '......##*##..........##*##....',
-  '.....###^###........###^###...',
-  '....####^####......####^####..',
-  '...#####^#####....#####^#####.',
-  '##############################',
-  '====*=======*======*=======*==',
-  '==============================',
-  '##^^####^^####^^####^^####^^##',
-  '==============================',
-  '##############################',
-]);
+const CARTE_RUINES = creerCarte('ruines', 'Ruines plasma', 'Blocs reacteurs et zones denses.', LIGNES_CARTE_RUINES);
 
-const CARTE_SOLAIRE = creerCarte('solaire', 'Forteresse solaire', 'Balises et couloirs de defense.', [
-  '..............................',
-  '..............................',
-  '..............*...............',
-  '..............................',
-  '..............................',
-  '.........+............+.......',
-  '..............................',
-  '......^^^^..........^^^^......',
-  '.....######........######.....',
-  '....##====##......##====##....',
-  '...###====###....###====###...',
-  '..####====####..####====####..',
-  '.#####====########====#####...',
-  '##############################',
-  '==+======================+====',
-  '==============================',
-  '####^^^^####^^^^####^^^^######',
-  '==============================',
-  '####====####====####====######',
-  '==============================',
-]);
+const CARTE_SOLAIRE = creerCarte('solaire', 'Forteresse solaire', 'Balises et couloirs de defense.', LIGNES_CARTE_SOLAIRE);
 
 export const LISTE_CARTES = [CARTE_HANGAR, CARTE_RUINES, CARTE_SOLAIRE];
 
-const CARTES_PAR_ID = new Map(LISTE_CARTES.map((carte) => [carte.id, carte]));
+const CARTES_PAR_ID = new Map();
 
+for (const carte of LISTE_CARTES) {
+  CARTES_PAR_ID.set(carte.id, carte);
+}
+
+// recupererCarte explique une etape dediee du module.
 export function recupererCarte(idCarte) {
   return CARTES_PAR_ID.get(idCarte) || LISTE_CARTES[0];
 }

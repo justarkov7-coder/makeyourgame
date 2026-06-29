@@ -1,0 +1,79 @@
+
+.boss-bonus-icon {
+  width: 82px;
+  height: 82px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 82px 82px;
+  image-rendering: pixelated;
+  filter:
+    drop-shadow(3px 0 0 rgba(255, 255, 255, 0.16))
+    drop-shadow(0 3px 0 rgba(74, 14, 9, 0.26));
+}
+
+.boss-bonus-icon-slot[data-bonus-id='rapid-fire'] .boss-bonus-icon {
+  background-image: url('../assets/bonus/rapid-fire.svg');
+}
+
+.boss-bonus-icon-slot[data-bonus-id='hull-up'] .boss-bonus-icon {
+  background-image: url('../assets/bonus/hull-up.svg');
+}
+
+.boss-bonus-icon-slot[data-bonus-id='thruster-up'] .boss-bonus-icon {
+  background-image: url('../assets/bonus/thruster-up.svg');
+}
+
+.boss-bonus-icon-slot em {
+  display: block;
+  min-width: 82px;
+  padding: 2px 4px;
+  border: 2px solid rgba(99, 19, 10, 0.18);
+  background: rgba(255, 255, 255, 0.28);
+  color: #481009;
+  font-style: normal;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.boss-bonus-reel > strong {
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 5px 4px;
+  border: 2px solid #101010;
+  background: #f0d36d;
+  color: #1b0805;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.boss-bonus-reel > [data-bonus-description] {
+  display: none;
+}
+
+.boss-bonus-reel.is-spinning {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 28%),
+    #4d1510;
+  box-shadow: inset 0 0 0 2px rgba(255, 227, 117, 0.2);
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-window-glow {
+  animation: slot-scan 220ms linear infinite;
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-track {
+  animation: slot-track-spin 165ms linear infinite;
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-icon {
+  filter:
+    blur(0.8px)
+    drop-shadow(0 4px 0 rgba(74, 14, 9, 0.16));
+}
+
+.boss-bonus-reel.is-spinning .boss-bonus-icon-slot em {
+  opacity: 0.72;
+}

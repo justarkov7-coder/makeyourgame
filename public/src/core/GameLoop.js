@@ -1,4 +1,5 @@
 export class BoucleDeJeu {
+  // constructor explique une etape dediee du module.
   constructor({ surImage }) {
     this.surImage = surImage;
     this.idAnimation = 0;
@@ -7,6 +8,7 @@ export class BoucleDeJeu {
     this.animer = this.animer.bind(this);
   }
 
+  // demarrer explique une etape dediee du module.
   demarrer() {
     if (this.estActive) {
       return;
@@ -17,6 +19,7 @@ export class BoucleDeJeu {
     this.planifierImage();
   }
 
+  // arreter explique une etape dediee du module.
   arreter() {
     this.estActive = false;
 
@@ -28,6 +31,7 @@ export class BoucleDeJeu {
     this.idAnimation = 0;
   }
 
+  // animer explique une etape dediee du module.
   animer(horodatage) {
     if (!this.estActive) {
       return;
@@ -38,6 +42,7 @@ export class BoucleDeJeu {
     this.planifierImage();
   }
 
+  // calculerDelta explique une etape dediee du module.
   calculerDelta(horodatage) {
     if (this.dernierHorodatage === 0) {
       this.dernierHorodatage = horodatage;
@@ -48,6 +53,7 @@ export class BoucleDeJeu {
     return deltaSecondes;
   }
 
+  // planifierImage explique une etape dediee du module.
   planifierImage() {
     this.idAnimation = window.requestAnimationFrame(this.animer);
   }

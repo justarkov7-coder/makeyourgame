@@ -1,0 +1,80 @@
+
+.boss-hud-bar-fill {
+  height: 100%;
+  width: 100%;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #f0f0f0 0 8px,
+      #bdbdbd 8px 16px
+    );
+}
+
+.bonus-hud {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  width: min(300px, 42vw);
+  padding: 8px 10px;
+  border: 2px solid #f0d36d;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 52%),
+    rgba(18, 7, 6, 0.88);
+  color: #fff4b8;
+  pointer-events: none;
+}
+
+.bonus-hud-icon {
+  width: 42px;
+  height: 42px;
+  align-self: center;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 42px 42px;
+  image-rendering: pixelated;
+}
+
+.bonus-hud-icon[data-bonus-id='rapid-fire'] {
+  background-image: url('../assets/bonus/rapid-fire.svg');
+}
+
+.bonus-hud-icon[data-bonus-id='hull-up'] {
+  background-image: url('../assets/bonus/hull-up.svg');
+}
+
+.bonus-hud-icon[data-bonus-id='thruster-up'] {
+  background-image: url('../assets/bonus/thruster-up.svg');
+}
+
+.bonus-hud-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  text-align: right;
+}
+
+.bonus-hud-copy strong {
+  overflow: hidden;
+  color: #ffffff;
+  font-size: 0.92rem;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.bonus-hud-copy span:last-child {
+  color: #ffd95e;
+  font-size: 1rem;
+}
+
+.hud-fps-hidden {
+  display: none;
+}
+
+.tile-layer,
+.stars,
+.entity-layer,
+.overlay {
+  position: absolute;
+  inset: 0;
+}

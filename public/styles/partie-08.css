@@ -1,0 +1,82 @@
+
+.overlay[data-resultat='victory'] .overlay-tag {
+  color: #d8d8d8;
+}
+
+.overlay[data-resultat='victory'] .overlay-card h2 {
+  color: #ffffff;
+}
+
+.overlay[data-resultat='defeat'] .overlay-card {
+  border-color: #ff9d9d;
+  outline-color: #6a2a2a;
+  background: #120303;
+}
+
+.overlay[data-resultat='defeat'] .overlay-card::before {
+  content: "MISSION STATUS / FAILURE";
+  background: #ffb3b3;
+}
+
+.overlay[data-resultat='defeat'] .overlay-tag,
+.overlay[data-resultat='defeat'] .ranking-head {
+  color: #ffb3b3;
+}
+
+.overlay[data-resultat='defeat'] .overlay-card h2,
+.overlay[data-resultat='defeat'] .overlay-text,
+.overlay[data-resultat='defeat'] .ranking-feedback {
+  color: #ffe1e1;
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-card {
+  width: min(100%, 860px);
+  padding-top: 18px;
+  border-color: #f8f1d2;
+  outline-color: #8d1b16;
+  background:
+    linear-gradient(180deg, #181818 0 42px, transparent 42px),
+    linear-gradient(180deg, #4b0f12 0%, #25080b 56%, #080405 100%);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 236, 154, 0.08),
+    0 0 0 4px rgba(0, 0, 0, 0.48);
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-card::before {
+  display: none;
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-tag,
+.overlay[data-phase='bonus-boss'] .overlay-text {
+  display: none;
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-card h2 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-family: "Impact", "Copperplate", fantasy;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-shadow:
+    3px 0 #57100d,
+    0 3px #57100d,
+    0 0 10px rgba(255, 214, 98, 0.48);
+}
+
+.overlay[data-phase='bonus-boss'] .overlay-actions {
+  display: none;
+}
+
+.overlay-tag,
+.overlay-card h2,
+.overlay-text {
+  margin: 0;
+}
+
+.overlay-tag {
+  color: #c8c8c8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1rem;
+}

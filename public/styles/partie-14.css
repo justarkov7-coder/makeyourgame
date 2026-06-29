@@ -1,0 +1,80 @@
+
+.map-option {
+  width: 100%;
+  padding: 12px 14px 12px 32px;
+  text-align: left;
+  color: #f0f0f0;
+  border: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  position: relative;
+  box-shadow: none;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-size: 1.15rem;
+}
+
+.map-option.active {
+  border-color: #ffffff;
+  background: #f1f1f1;
+  color: #000;
+  box-shadow: none;
+}
+
+.map-option::before {
+  content: ">";
+  position: absolute;
+  left: 12px;
+  top: 13px;
+  color: #f0f0f0;
+  opacity: 0;
+}
+
+.map-option.active::before {
+  opacity: 1;
+  color: #000;
+}
+
+.map-option strong {
+  display: block;
+}
+
+.map-option span {
+  display: none;
+}
+
+.score-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.score-fields input {
+  min-width: 0;
+  padding: 14px 16px;
+  font-family: "Lucida Console", "Courier New", monospace;
+  color: #ffffff;
+  background: #111;
+  font-size: 1.05rem;
+}
+
+.score-fields input,
+#submit-score-button {
+  min-height: 48px;
+}
+
+#submit-score-button {
+  padding: 0 18px;
+}
+
+#submit-score-button,
+.overlay-actions button,
+.ranking-pagination button {
+  border-radius: 0;
+  border: 1px solid #d0d0d0;
+  background: #101010;
+  color: #ffffff;
+  box-shadow: none;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-size: 1.05rem;
+}

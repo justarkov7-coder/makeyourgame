@@ -7,9 +7,9 @@ export const BONUS_BOSS = [
   },
   {
     id: 'hull-up',
-    symbole: 'LIFE',
+    symbole: 'SHLD',
     titre: 'Coque renforcee',
-    description: 'Une vie supplementaire est ajoutee immediatement.',
+    description: 'Les projectiles ennemis proches sont repousses par la coque.',
   },
   {
     id: 'thruster-up',
@@ -22,31 +22,66 @@ export const BONUS_BOSS = [
 export const DUREE_BONUS_DOUBLE_SECONDES = 30;
 export const DUREE_BONUS_TRIPLE_SECONDES = 45;
 
+// choisirIndexAleatoire explique une etape dediee du module.
 function choisirIndexAleatoire(taille) {
   return Math.floor(Math.random() * taille);
 }
 
+// recupererBonusBoss explique une etape dediee du module.
 export function recupererBonusBoss(idBonus) {
-  return BONUS_BOSS.find((bonus) => bonus.id === idBonus) || BONUS_BOSS[0];
+  for (const bonus of BONUS_BOSS) {
+    if (bonus.id === idBonus) {
+      return bonus;
+    }
+  }
+
+  return BONUS_BOSS[0];
 }
 
+// creerReelsBonusBoss explique une etape dediee du module.
 export function creerReelsBonusBoss(idBonusGagnant) {
-  const reels = BONUS_BOSS.map((bonus) => bonus.id);
-  const bonusSecondaires = reels.filter((idBonus) => idBonus !== idBonusGagnant);
+  const reels = [];
+  const bonusSecondaires = [];
   const nombreOccurrencesGagnantes = Math.random() < 0.28 ? 3 : 2;
   const reelsFinaux = Array(nombreOccurrencesGagnantes).fill(idBonusGagnant);
+
+  for (const bonus of BONUS_BOSS) {
+    reels.push(bonus.id);
+    if (bonus.id !== idBonusGagnant) {
+      bonusSecondaires.push(bonus.id);
+    }
+  }
 
   if (nombreOccurrencesGagnantes === 2) {
     reelsFinaux.push(bonusSecondaires[choisirIndexAleatoire(bonusSecondaires.length)]);
   }
 
-  return reelsFinaux.sort(() => Math.random() - 0.5);
+  return melangerReels(reelsFinaux);
 }
 
+// melangerReels explique une etape dediee du module.
+function melangerReels(reels) {
+  for (let index = reels.length - 1; index > 0; index -= 1) {
+    const indexAleatoire = choisirIndexAleatoire(index + 1);
+    const valeur = reels[index];
+    reels[index] = reels[indexAleatoire];
+    reels[indexAleatoire] = valeur;
+  }
+
+  return reels;
+}
+
+// tirerBonusBossAleatoire explique une etape dediee du module.
 export function tirerBonusBossAleatoire() {
   const bonus = BONUS_BOSS[choisirIndexAleatoire(BONUS_BOSS.length)];
   const reelsFinaux = creerReelsBonusBoss(bonus.id);
-  const occurrencesGagnantes = reelsFinaux.filter((idBonus) => idBonus === bonus.id).length;
+  let occurrencesGagnantes = 0;
+
+  for (const idBonus of reelsFinaux) {
+    if (idBonus === bonus.id) {
+      occurrencesGagnantes += 1;
+    }
+  }
 
   return {
     bonusId: bonus.id,

@@ -1,6 +1,7 @@
 import { formaterTemps } from '../utils/temps.js';
 
 export class ControleurHud {
+  // constructor explique une etape dediee du module.
   constructor(elements) {
     this.elements = elements;
     this.dernieresValeurs = {
@@ -15,6 +16,7 @@ export class ControleurHud {
     };
   }
 
+  // rendre explique une etape dediee du module.
   rendre(etat) {
     const tempsFormate = formaterTemps(etat.tempsRestantSecondes);
     const score = String(etat.score);
@@ -61,6 +63,7 @@ export class ControleurHud {
     }
   }
 
+  // rendreBonusActif explique une etape dediee du module.
   rendreBonusActif(etat) {
     const bonusVisible = etat.phase === 'running' && Boolean(etat.bonusActif?.bonusId);
 
