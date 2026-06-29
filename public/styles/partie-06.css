@@ -1,0 +1,81 @@
+.sprite-bio[data-integrite='1'] {
+  opacity: 0.48;
+  filter: saturate(0.62);
+}
+
+.sprite-bio::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      135deg,
+      transparent 16%,
+      rgba(255, 255, 255, 0.22) 16% 18%,
+      transparent 18% 50%,
+      rgba(255, 255, 255, 0.12) 50% 52%,
+      transparent 52%
+    );
+  opacity: calc((var(--bio-integrite-max, 4) - var(--bio-integrite, 4)) * 0.2);
+  pointer-events: none;
+}
+
+.sprite-ananas {
+  background-image: url('../assets/sprites/ananas.png');
+}
+
+.sprite-mouche {
+  background-image: url('../assets/sprites/mouche.png');
+}
+
+.sprite-papillon {
+  background-image: url('../assets/sprites/papillon.png');
+}
+
+.sprite-pommefraise {
+  background-image: url('../assets/sprites/pommefraise.png');
+}
+
+.sprite-banane {
+  background-image: url('../assets/sprites/banane.png');
+}
+
+.sprite-versdeterre {
+  background-image: url('../assets/sprites/versdeterre.png');
+}
+
+.player-shot {
+  background-image: url('../assets/sprites/bullet.png');
+  filter: brightness(1.5) saturate(1.5) contrast(1.1);
+}
+
+.alien-shot {
+  background-image: url('../assets/sprites/bullet.png');
+  filter: hue-rotate(315deg) saturate(2) brightness(1.45) contrast(1.15);
+}
+
+.boss-shot {
+  background-image: url('../assets/sprites/bullet.png');
+  filter: saturate(1.8) brightness(1.5) contrast(1.2);
+}
+
+.bullet::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10%;
+  width: 4px;
+  height: 80%;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #f0f0f0;
+  opacity: 0.92;
+}
+
+.player-shot::after {
+  background: #f7fff8;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 0 10px rgba(255, 255, 255, 0.9),
+    0 0 18px rgba(150, 255, 220, 0.9);
+}

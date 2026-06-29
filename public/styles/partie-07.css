@@ -1,0 +1,82 @@
+
+.alien-shot::after {
+  background: #ff5656;
+  box-shadow:
+    0 0 0 1px rgba(255, 180, 180, 0.35),
+    0 0 10px rgba(255, 84, 84, 0.95),
+    0 0 18px rgba(255, 20, 20, 0.85);
+}
+
+.boss-shot::after {
+  background: hsl(var(--shot-hue, 180) 100% 62%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 0 10px hsl(var(--shot-hue, 180) 100% 60% / 0.95),
+    0 0 18px hsl(var(--shot-hue, 180) 100% 50% / 0.8);
+}
+
+.boss-entity {
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.18));
+}
+
+.overlay {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow: auto;
+  padding: 48px 16px 36px;
+  background: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlay-card {
+  width: min(100%, 780px);
+  max-height: none;
+  overflow: visible;
+  padding: 16px 18px 18px;
+  border-radius: 0;
+  border: 2px solid #f1f1f1;
+  outline: 2px solid #707070;
+  outline-offset: -6px;
+  background: #050505;
+  box-shadow: none;
+  margin: 0;
+  position: relative;
+  color: #f2f2f2;
+  font-family: "Lucida Console", "Courier New", monospace;
+  -webkit-font-smoothing: none;
+}
+
+.overlay-card::before {
+  content: "CMOS SETUP UTILITY / BOOT MENU";
+  display: block;
+  margin: -16px -18px 12px;
+  padding: 9px 12px;
+  color: #050505;
+  border-bottom: 2px solid #f1f1f1;
+  background: #d9d9d9;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.overlay-card::after {
+  display: none;
+}
+
+.overlay[data-resultat='victory'] .overlay-card {
+  border-color: #ffffff;
+  background: #050505;
+}
+
+.overlay[data-resultat='victory'] .overlay-card::before {
+  content: "MISSION STATUS / SUCCESS";
+  background: #f1f1f1;
+}

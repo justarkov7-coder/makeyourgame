@@ -1,0 +1,90 @@
+
+.overlay-card h2 {
+  margin-top: 8px;
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
+  line-height: 1.2;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.overlay-text {
+  margin-top: 10px;
+  color: #ededed;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  font-size: 1.15rem;
+}
+
+.map-panel,
+.boss-bonus-panel,
+.overlay-scoreboard,
+.score-form,
+.ranking-panel {
+  margin-top: 14px;
+}
+
+.overlay-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  padding: 12px 0;
+  border-top: 1px solid #6b6b6b;
+  border-bottom: 1px solid #6b6b6b;
+}
+
+.overlay-scoreboard div,
+.ranking-table,
+.score-fields input {
+  border: 1px solid #bdbdbd;
+  border-radius: 0;
+  background: #0d0d0d;
+}
+
+.overlay-scoreboard div {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.map-options {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.boss-bonus-panel {
+  display: grid;
+  gap: 10px;
+}
+
+.boss-bonus-cabinet {
+  display: grid;
+  gap: 0;
+  border: 4px solid #101010;
+  outline: 2px solid #f4d06a;
+  background: #130405;
+  box-shadow:
+    inset 0 0 0 4px #6f1412,
+    0 10px 0 rgba(0, 0, 0, 0.36);
+}
+
+.boss-bonus-marquee {
+  display: grid;
+  gap: 4px;
+  min-height: 28px;
+  padding: 0;
+  border: 0;
+  border-bottom: 4px solid #101010;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #ffd95e 0 14px,
+      #f6f0c2 14px 20px,
+      #bd2a20 20px 34px
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 42%),
+    #cf2f22;
+  color: #fff8d8;
+  text-align: center;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.22);
+}

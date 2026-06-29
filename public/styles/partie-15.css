@@ -1,0 +1,81 @@
+
+#submit-score-button:hover,
+.overlay-actions button:hover,
+.ranking-pagination button:hover {
+  transform: none;
+  filter: none;
+  border-color: #ffffff;
+  background: #f1f1f1;
+  color: #000;
+}
+
+.score-form-message {
+  min-height: 1.1rem;
+  margin: 10px 0 0;
+}
+
+.score-form-message.error {
+  color: #ff8c8c;
+}
+
+.ranking-feedback {
+  margin: 0 0 12px;
+}
+
+.ranking-table {
+  overflow: hidden;
+}
+
+.ranking-row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 96px 96px;
+  gap: 10px;
+  padding: 12px 14px;
+  align-items: center;
+}
+
+.ranking-row + .ranking-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ranking-head {
+  color: #d5d5d5;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.82rem;
+  background: #111;
+}
+
+.current-player {
+  background: #efefef;
+  color: #000;
+}
+
+.ranking-empty {
+  margin: 0;
+  padding: 18px 14px;
+  color: var(--muted);
+}
+
+.ranking-pagination,
+.overlay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.ranking-pagination {
+  margin-top: 14px;
+  justify-content: space-between;
+}
+
+.overlay-actions {
+  margin-top: 16px;
+}
+
+.overlay-actions button,
+.ranking-pagination button {
+  min-height: 46px;
+  padding: 0 18px;
+}

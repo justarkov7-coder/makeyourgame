@@ -1,4 +1,5 @@
 export class MoniteurPerformance {
+  // constructor explique une etape dediee du module.
   constructor() {
     this.fps = 60;
     this.imagesLentes = 0;
@@ -7,6 +8,7 @@ export class MoniteurPerformance {
     this.tempsCumuleMs = 0;
   }
 
+  // mesurer explique une etape dediee du module.
   mesurer(deltaSecondes) {
     const dureeImageMs = deltaSecondes * 1000;
     this.mettreAJourStatistiques(dureeImageMs);
@@ -17,6 +19,7 @@ export class MoniteurPerformance {
     }
   }
 
+  // instantane explique une etape dediee du module.
   instantane() {
     return {
       fps: this.fps,
@@ -25,6 +28,7 @@ export class MoniteurPerformance {
     };
   }
 
+  // mettreAJourStatistiques explique une etape dediee du module.
   mettreAJourStatistiques(dureeImageMs) {
     this.compteurImages += 1;
     this.tempsCumuleMs += dureeImageMs;
@@ -35,6 +39,7 @@ export class MoniteurPerformance {
     }
   }
 
+  // reinitialiserFenetreMesure explique une etape dediee du module.
   reinitialiserFenetreMesure(dureeImageMs) {
     this.compteurImages = 0;
     this.tempsCumuleMs = 0;

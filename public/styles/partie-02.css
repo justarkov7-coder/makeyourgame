@@ -1,0 +1,85 @@
+.ranking-feedback,
+.score-form-message,
+.panel-title {
+  color: #cfcfcf;
+  font-size: 0.92rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hud-chip strong,
+.overlay-scoreboard strong {
+  font-size: 1.18rem;
+}
+
+.overlay-actions button,
+#submit-score-button,
+.map-option,
+.ranking-pagination button {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(37, 64, 89, 0.92), rgba(13, 26, 38, 0.98));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    filter 140ms ease;
+}
+
+.overlay-actions button:hover,
+#submit-score-button:hover,
+.map-option:hover,
+.ranking-pagination button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(116, 240, 210, 0.36);
+  filter: brightness(1.07);
+}
+
+.game-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #000;
+}
+
+.game-frame::before,
+.game-frame::after {
+  display: none;
+}
+
+.game-scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #000;
+}
+
+.hud-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  font-family: "Lucida Console", "Courier New", monospace;
+  color: #f2f2f2;
+}
+
+.debug-bonus-trigger {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 6;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d0d0d0;
+  background: rgba(10, 10, 10, 0.94);
+  color: #ffffff;
+  pointer-events: auto;
+  font-family: "Lucida Console", "Courier New", monospace;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+}
