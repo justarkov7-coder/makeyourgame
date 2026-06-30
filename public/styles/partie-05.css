@@ -54,7 +54,7 @@
 }
 
 .sprite-player {
-  background-image: url('../assets/sprites/spray.png');
+  background-image: url('../assets/player/spray.png');
 }
 
 .sprite-player.is-shielded {
@@ -63,7 +63,7 @@
 }
 
 .sprite-bio {
-  background-image: url('../assets/sprites/bio.png');
+  background-image: url('../assets/mobs/bio.png');
   background-position: center;
   background-size: 100% 100%;
 }
