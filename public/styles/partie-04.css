@@ -35,15 +35,15 @@
 }
 
 .bonus-hud-icon[data-bonus-id='rapid-fire'] {
-  background-image: url('../assets/bonus/rapid-fire.svg');
+  background-image: url('../assets/bonus/soleil.png');
 }
 
 .bonus-hud-icon[data-bonus-id='hull-up'] {
-  background-image: url('../assets/bonus/hull-up.svg');
+  background-image: url('../assets/bonus/nuage.png');
 }
 
 .bonus-hud-icon[data-bonus-id='thruster-up'] {
-  background-image: url('../assets/bonus/thruster-up.svg');
+  background-image: url('../assets/bonus/dollar.png');
 }
 
 .bonus-hud-copy {

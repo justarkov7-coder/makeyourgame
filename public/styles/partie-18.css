@@ -1,0 +1,61 @@
+.boss-bonus-machine {
+  padding-right: 136px;
+}
+
+.boss-bonus-payline {
+  right: 148px;
+}
+
+.boss-bonus-lever {
+  right: 82px;
+}
+
+.boss-bonus-machine::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 24px;
+  z-index: 6;
+  width: 66px;
+  height: 220px;
+  background-image:
+    url('../assets/bonus/buttons/btnrouge.png'),
+    url('../assets/bonus/buttons/btnjaune.png'),
+    url('../assets/bonus/buttons/btnbleu.png'),
+    url('../assets/bonus/buttons/btnvert.png');
+  background-repeat: no-repeat;
+  background-position:
+    center 0,
+    center 50px,
+    center 104px,
+    center 152px;
+  background-size:
+    48px 48px,
+    48px 48px,
+    24px 48px,
+    48px 72px;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 0 rgba(50, 8, 6, 0.34));
+}
+
+@media (max-width: 680px) {
+  .boss-bonus-machine {
+    padding-right: 72px;
+  }
+
+  .boss-bonus-payline {
+    right: 80px;
+  }
+
+  .boss-bonus-machine::after {
+    right: 8px;
+    top: 16px;
+    width: 52px;
+    background-size:
+      38px 38px,
+      38px 38px,
+      20px 40px,
+      38px 58px;
+  }
+}
