@@ -12,15 +12,15 @@
 }
 
 .boss-bonus-icon-slot[data-bonus-id='rapid-fire'] .boss-bonus-icon {
-  background-image: url('../assets/bonus/rapid-fire.svg');
+  background-image: url('../assets/bonus/soleil.png');
 }
 
 .boss-bonus-icon-slot[data-bonus-id='hull-up'] .boss-bonus-icon {
-  background-image: url('../assets/bonus/hull-up.svg');
+  background-image: url('../assets/bonus/nuage.png');
 }
 
 .boss-bonus-icon-slot[data-bonus-id='thruster-up'] .boss-bonus-icon {
-  background-image: url('../assets/bonus/thruster-up.svg');
+  background-image: url('../assets/bonus/dollar.png');
 }
 
 .boss-bonus-icon-slot em {
