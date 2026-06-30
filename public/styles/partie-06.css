@@ -21,41 +21,41 @@
 }
 
 .sprite-ananas {
-  background-image: url('../assets/sprites/ananas.png');
+  background-image: url('../assets/mobs/ananas.png');
 }
 
 .sprite-mouche {
-  background-image: url('../assets/sprites/mouche.png');
+  background-image: url('../assets/mobs/mouche.png');
 }
 
 .sprite-papillon {
-  background-image: url('../assets/sprites/papillon.png');
+  background-image: url('../assets/mobs/papillon.png');
 }
 
 .sprite-pommefraise {
-  background-image: url('../assets/sprites/pommefraise.png');
+  background-image: url('../assets/mobs/pommefraise.png');
 }
 
 .sprite-banane {
-  background-image: url('../assets/sprites/banane.png');
+  background-image: url('../assets/mobs/banane.png');
 }
 
 .sprite-versdeterre {
-  background-image: url('../assets/sprites/versdeterre.png');
+  background-image: url('../assets/mobs/versdeterre.png');
 }
 
 .player-shot {
-  background-image: url('../assets/sprites/bullet.png');
+  background-image: url('../assets/player/bullet.png');
   filter: brightness(1.5) saturate(1.5) contrast(1.1);
 }
 
 .alien-shot {
-  background-image: url('../assets/sprites/bullet.png');
+  background-image: url('../assets/player/bullet.png');
   filter: hue-rotate(315deg) saturate(2) brightness(1.45) contrast(1.15);
 }
 
 .boss-shot {
-  background-image: url('../assets/sprites/bullet.png');
+  background-image: url('../assets/player/bullet.png');
   filter: saturate(1.8) brightness(1.5) contrast(1.2);
 }
 
